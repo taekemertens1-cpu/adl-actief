@@ -1,0 +1,2179 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ADL-Actief</title>
+<meta name="description" content="ADL-Actief — vrijwilligersapp van Markenheem">
+<meta name="theme-color" content="#1A7A45" id="theme-color-meta">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="adl-icon.svg">
+<link rel="apple-touch-icon" href="adl-icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ADL-Actief">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+:root {
+  --green:       #1A7A45;
+  --green-2:     #24AA5A;
+  --green-light: #E1F5EB;
+  --green-dark:  #0D3D22;
+  --orange:      #E5782A;
+  --orange-light:#FEF0E4;
+  --bg:          #ECEFE8;
+  --white:       #FFFFFF;
+  --g50:         #F7FAF5;
+  --g100:        #ECEEED;
+  --g200:        #DEE1DD;
+  --g300:        #C2C7C2;
+  --g400:        #969C96;
+  --g600:        #565E56;
+  --g800:        #1A2019;
+  --shadow-xs:   0 1px 2px rgba(0,0,0,0.05), 0 1px 4px rgba(0,0,0,0.03);
+  --shadow:      0 2px 12px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-md:   0 8px 28px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.05);
+  --shadow-lg:   0 24px 64px rgba(0,0,0,0.15), 0 6px 20px rgba(0,0,0,0.08);
+  --r:    14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --nav-h: 84px;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{font-family:var(--font);background:var(--bg);color:var(--g800);font-size:16px;line-height:1.5;max-width:430px;margin:0 auto;height:100vh;overflow:hidden;}
+::-webkit-scrollbar{display:none;}
+
+/* ══════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════ */
+#login-screen {
+  position:fixed; inset:0; max-width:430px; margin:0 auto; z-index:800;
+  background: linear-gradient(165deg, #071B0D 0%, #0D3D22 22%, #165A34 50%, #1E8048 75%, #2CA85A 100%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:32px 24px;
+}
+.login-logo {
+  text-align:center; margin-bottom:30px;
+}
+.login-logo-mark {
+  width:82px; height:82px; background:rgba(255,255,255,0.13);
+  border-radius:28px; margin:0 auto 16px;
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(16px); border:1.5px solid rgba(255,255,255,0.24);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.12);
+}
+.login-logo-mark svg{width:40px;height:40px;stroke:white;fill:none;stroke-width:1.8;}
+.login-appname{font-size:30px;font-weight:900;color:white;letter-spacing:-.8px;}
+.login-tagline{font-size:14px;color:rgba(255,255,255,0.62);margin-top:5px;letter-spacing:.1px;}
+.login-card {
+  background:rgba(255,255,255,0.98); border-radius:var(--r-xl); padding:28px 24px 24px;
+  width:100%; max-width:360px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.28), 0 8px 24px rgba(0,0,0,0.12);
+  border: 1px solid rgba(255,255,255,0.6);
+}
+.login-card h2{font-size:20px;font-weight:800;color:var(--g800);margin-bottom:4px;letter-spacing:-.3px;}
+.login-card p{font-size:14px;color:var(--g400);margin-bottom:22px;}
+.field-wrap{position:relative;margin-bottom:12px;}
+.field-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);}
+.field-icon svg{width:17px;height:17px;stroke:var(--g400);fill:none;stroke-width:2;}
+.login-input{
+  width:100%; padding:13px 14px 13px 42px;
+  border:1.5px solid var(--g200); border-radius:13px;
+  font-size:15px; font-family:var(--font); background:var(--g50); color:var(--g800);
+  outline:none; transition:all .2s; font-weight:500;
+}
+.login-input:focus{border-color:var(--green);background:var(--white);box-shadow:0 0 0 4px rgba(26,122,69,0.1);}
+.login-btn{
+  width:100%; padding:14px; border:none; border-radius:13px;
+  background:linear-gradient(135deg,var(--green-2) 0%,var(--green) 55%,var(--green-dark) 100%);
+  color:white; font-size:16px; font-weight:700; font-family:var(--font);
+  cursor:pointer; margin-top:8px; transition:all .2s; letter-spacing:-.1px;
+  box-shadow:0 4px 20px rgba(26,122,69,0.42), 0 1px 3px rgba(0,0,0,0.1);
+}
+.login-btn:active{transform:scale(0.98);box-shadow:0 2px 10px rgba(26,122,69,0.3);}
+.login-error{font-size:13px;color:#D73B2B;margin-top:8px;text-align:center;display:none;font-weight:500;}
+.login-meta{text-align:center;margin-top:16px;font-size:13px;color:rgba(255,255,255,0.52);}
+.login-meta strong{color:rgba(255,255,255,0.8);}
+.demo-hint{background:rgba(255,255,255,0.1);border-radius:14px;padding:11px 16px;margin-top:18px;text-align:center;font-size:13px;color:rgba(255,255,255,0.75);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.14);}
+.demo-hint strong{color:white;}
+
+/* ══════════════════════════════════
+   ONBOARDING
+══════════════════════════════════ */
+#onboarding{position:fixed;inset:0;max-width:430px;margin:0 auto;z-index:500;display:none;flex-direction:column;background:var(--white);}
+#onboarding.visible{display:flex;}
+.ob-step{display:none;flex-direction:column;height:100%;}
+.ob-step.active{display:flex;}
+.ob-hero{background:linear-gradient(150deg,var(--green) 0%,var(--green-dark) 100%);padding:52px 32px 36px;text-align:center;flex-shrink:0;position:relative;overflow:hidden;}
+.ob-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:rgba(255,255,255,0.06);border-radius:50%;}
+.ob-hero::after{content:'';position:absolute;bottom:-60px;left:-30px;width:200px;height:200px;background:rgba(255,255,255,0.04);border-radius:50%;}
+.ob-icon{width:72px;height:72px;background:rgba(255,255,255,0.18);border-radius:20px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.2);position:relative;z-index:1;}
+.ob-icon svg{width:34px;height:34px;stroke:white;fill:none;stroke-width:2;}
+.ob-title{font-size:24px;font-weight:800;color:white;line-height:1.2;margin-bottom:10px;position:relative;z-index:1;letter-spacing:-.3px;}
+.ob-sub{font-size:15px;color:rgba(255,255,255,0.8);line-height:1.6;position:relative;z-index:1;}
+.ob-body{flex:1;overflow-y:auto;padding:22px 20px;}
+.ob-footer{padding:14px 20px 40px;background:var(--white);flex-shrink:0;}
+.step-dots{display:flex;justify-content:center;gap:6px;margin-bottom:14px;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--g200);transition:all .35s cubic-bezier(.34,1.56,.64,1);}
+.dot.active{width:22px;border-radius:4px;background:var(--green);}
+.info-block{background:var(--white);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-xs);border:1px solid var(--g100);}
+.ib-head{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+.ib-icon{width:33px;height:33px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ib-icon.g{background:var(--green-light);}
+.ib-icon.g svg{stroke:var(--green);fill:none;stroke-width:2;}
+.ib-icon.o{background:var(--orange-light);}
+.ib-icon.o svg{stroke:var(--orange);fill:none;stroke-width:2;}
+.ib-icon svg{width:16px;height:16px;}
+.ib-title{font-size:14px;font-weight:700;color:var(--g800);}
+.info-block p{font-size:14px;color:var(--g600);line-height:1.55;}
+.form-label{font-size:13px;font-weight:600;color:var(--g600);margin-bottom:7px;display:block;letter-spacing:.2px;text-transform:uppercase;}
+.form-input{width:100%;padding:12px 14px;border:1.5px solid var(--g200);border-radius:11px;font-size:15px;font-family:var(--font);background:var(--g50);color:var(--g800);outline:none;transition:all .2s;margin-bottom:16px;}
+.form-input:focus{border-color:var(--green);background:var(--white);box-shadow:0 0 0 3px var(--green-light);}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
+.chip{padding:8px 14px;border-radius:20px;border:1.5px solid var(--g200);font-size:14px;cursor:pointer;transition:all .2s;background:var(--white);user-select:none;font-weight:500;}
+.chip.sel{background:var(--green-light);border-color:var(--green);color:var(--green);font-weight:600;}
+
+/* ══════════════════════════════════
+   MAIN APP
+══════════════════════════════════ */
+#app{height:100vh;display:none;flex-direction:column;}
+#app.visible{display:flex;}
+.screen{flex:1;overflow-y:auto;padding-bottom:var(--nav-h);-webkit-overflow-scrolling:touch;}
+
+/* ── Bottom nav ── */
+.bnav{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:430px;z-index:100;
+  background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
+  border-top:1px solid rgba(0,0,0,0.06);
+  display:flex;padding:8px 10px 24px;
+  box-shadow:0 -4px 24px rgba(0,0,0,0.06);
+}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 5px 5px;cursor:pointer;border-radius:14px;transition:all .22s cubic-bezier(.32,.72,0,1);}
+.ni:active{opacity:.7;transform:scale(.94);}
+.ni svg{width:22px;height:22px;stroke:var(--g400);fill:none;stroke-width:2;transition:stroke .2s;}
+.ni span{font-size:10.5px;font-weight:500;color:var(--g400);transition:all .2s;letter-spacing:.1px;}
+.ni.active{background:var(--green-light);}
+.ni.active svg{stroke:var(--green);}
+.ni.active span{color:var(--green);font-weight:700;}
+.ni-wrap{position:relative;}
+.nbadge{position:absolute;top:-6px;right:-10px;background:var(--orange);color:white;font-size:10px;font-weight:700;min-width:17px;height:17px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--white);}
+
+/* ── Page header ── */
+.ph{background:rgba(255,255,255,0.92);padding:16px 20px 13px;border-bottom:1px solid var(--g100);position:sticky;top:0;z-index:50;backdrop-filter:blur(20px);}
+.ph-row{display:flex;align-items:center;justify-content:space-between;}
+.ph h1{font-size:22px;font-weight:800;color:var(--g800);letter-spacing:-.5px;}
+.ph p{font-size:13px;color:var(--g400);margin-top:1px;}
+.ph-action{width:36px;height:36px;border-radius:11px;background:var(--g100);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;transition:all .15s;}
+.ph-action:active{background:var(--g200);transform:scale(.93);}
+.ph-action svg{width:17px;height:17px;stroke:var(--g600);fill:none;stroke-width:2;}
+
+/* ── Status bar ── */
+.status-bar{
+  margin:14px 16px;background:var(--white);border-radius:var(--r-lg);
+  padding:14px 16px;display:flex;align-items:center;justify-content:space-between;
+  box-shadow:var(--shadow);border:1.5px solid var(--g100);
+}
+.sb-info{display:flex;align-items:center;gap:11px;}
+.sb-dot{width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0;transition:all .3s;}
+.sb-dot.on{box-shadow:0 0 0 4px rgba(26,122,69,0.15);}
+.sb-dot.off{background:var(--g300);}
+.sb-label{font-size:15px;font-weight:700;color:var(--g800);letter-spacing:-.2px;}
+.sb-sub{font-size:12px;color:var(--g400);margin-top:1px;}
+.toggle{width:48px;height:28px;border-radius:14px;background:var(--green);position:relative;cursor:pointer;transition:background .3s;flex-shrink:0;box-shadow:0 2px 8px rgba(26,122,69,0.32);}
+.toggle.off{background:var(--g300);box-shadow:none;}
+.toggle::after{content:'';position:absolute;width:22px;height:22px;border-radius:50%;background:white;top:3px;left:3px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 2px 6px rgba(0,0,0,0.18);}
+.toggle:not(.off)::after{transform:translateX(20px);}
+
+/* ── Section header ── */
+.sec-head{padding:4px 20px 10px;display:flex;align-items:center;justify-content:space-between;}
+.sec-head h2{font-size:17px;font-weight:800;color:var(--g800);letter-spacing:-.35px;}
+.sec-count{background:var(--orange);color:white;font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;letter-spacing:.1px;}
+
+/* ── Notification cards ── */
+.card{
+  margin:0 16px 10px;background:var(--white);border-radius:var(--r-lg);
+  padding:15px 15px 13px;box-shadow:var(--shadow);cursor:pointer;
+  transition:transform .2s cubic-bezier(.32,.72,0,1),box-shadow .2s;
+  border:1.5px solid var(--g100);border-left:4px solid transparent;
+}
+.card.orange-card{border-left-color:var(--orange);}
+.card.green-card{border-left-color:var(--green);}
+.card:active{transform:scale(0.985);box-shadow:var(--shadow-xs);}
+.card-head{display:flex;align-items:flex-start;gap:11px;margin-bottom:10px;}
+.ci{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ci.o{background:var(--orange-light);}
+.ci.g{background:var(--green-light);}
+.ci.o svg{stroke:var(--orange);fill:none;stroke-width:2;width:19px;height:19px;}
+.ci.g svg{stroke:var(--green);fill:none;stroke-width:2;width:19px;height:19px;}
+.ci-name{font-size:15px;font-weight:700;margin-bottom:2px;color:var(--g800);letter-spacing:-.2px;}
+.ci-desc{font-size:13.5px;color:var(--g600);line-height:1.48;}
+.card-meta{display:flex;align-items:center;gap:12px;margin-bottom:11px;}
+.meta{display:flex;align-items:center;gap:4px;font-size:12.5px;color:var(--g400);}
+.meta svg{width:13px;height:13px;stroke:var(--g300);fill:none;flex-shrink:0;}
+.card-acts{display:flex;gap:8px;}
+
+/* ── Buttons ── */
+.btn{padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .18s cubic-bezier(.32,.72,0,1);display:inline-flex;align-items:center;justify-content:center;gap:6px;font-family:var(--font);letter-spacing:-.15px;}
+.btn-p{background:linear-gradient(135deg,var(--green-2) 0%,var(--green) 55%,var(--green-dark) 100%);color:white;box-shadow:0 3px 12px rgba(26,122,69,0.32),0 1px 3px rgba(0,0,0,0.06);}
+.btn-p:active{transform:scale(0.96);box-shadow:0 1px 6px rgba(26,122,69,0.22);}
+.btn-s{background:var(--g100);color:var(--g600);border:1.5px solid var(--g200);}
+.btn-s:active{background:var(--g200);}
+.btn-o{background:var(--orange-light);color:var(--orange);border:1.5px solid rgba(229,120,42,0.2);}
+.btn-out{background:transparent;color:var(--g600);border:1.5px solid var(--g200);}
+.btn-full{width:100%;padding:14px 20px;font-size:15.5px;border-radius:14px;letter-spacing:-.2px;}
+.btn-sm{padding:7px 12px;font-size:13px;border-radius:10px;}
+
+/* ── Resident cards ── */
+.rc{margin:0 16px 10px;background:var(--white);border-radius:var(--r-lg);padding:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:13px;cursor:pointer;border:1.5px solid var(--g100);transition:transform .2s,box-shadow .2s;}
+.rc:active{transform:scale(0.987);box-shadow:var(--shadow-xs);}
+.ava{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:white;flex-shrink:0;letter-spacing:-.5px;}
+.ava-lg{width:62px;height:62px;font-size:20px;border-radius:18px;}
+.rc-name{font-size:14.5px;font-weight:700;margin-bottom:2px;color:var(--g800);letter-spacing:-.2px;}
+.rc-desc{font-size:13px;color:var(--g600);line-height:1.42;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--green-light);color:var(--green);margin-top:5px;letter-spacing:.1px;}
+.tag svg{width:10px;height:10px;stroke:var(--green);fill:none;stroke-width:2.5;}
+
+/* ── Detail screen ── */
+.ds{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:100vh;background:var(--bg);z-index:200;overflow-y:auto;display:none;animation:slideUp .28s cubic-bezier(.32,.72,0,1);}
+.ds.open{display:block;}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(28px);opacity:.5;}to{transform:translateX(-50%) translateY(0);opacity:1;}}
+.ds-head{background:rgba(255,255,255,0.92);padding:14px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--g100);position:sticky;top:0;z-index:10;backdrop-filter:blur(20px);}
+.back{width:36px;height:36px;border-radius:50%;background:var(--g100);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;}
+.back:active{background:var(--g200);transform:scale(.92);}
+.back svg{width:16px;height:16px;stroke:var(--g800);fill:none;stroke-width:2.5;}
+.ds-htitle{font-size:16px;font-weight:700;color:var(--g800);letter-spacing:-.2px;}
+.ds-hsub{font-size:12px;color:var(--g400);}
+.ds-body{padding:18px 18px 52px;}
+.dbadge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:14px;}
+.dbadge.o{background:var(--orange-light);color:var(--orange);}
+.dbadge.g{background:var(--green-light);color:var(--green);}
+.dbadge svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;}
+.ds-sec{background:var(--white);border-radius:var(--r-lg);padding:16px;margin-bottom:10px;box-shadow:var(--shadow-xs);border:1.5px solid var(--g100);}
+.ds-sec-label{font-size:11px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.9px;margin-bottom:8px;}
+.ds-sec p{font-size:14.5px;color:var(--g800);line-height:1.62;}
+.tip-box{background:linear-gradient(135deg,#E8F7EF 0%,#DDF2E7 100%);border-radius:12px;padding:13px 14px;border-left:3px solid var(--green);margin-top:10px;}
+.tip-box p{font-size:13.5px;color:var(--green-dark);line-height:1.57;}
+.accepted-banner{background:var(--green-light);border-radius:14px;padding:14px;margin-bottom:12px;text-align:center;border:1.5px solid rgba(26,122,69,0.15);}
+.accepted-banner strong{color:var(--green);display:block;font-size:15px;margin-bottom:3px;font-weight:700;}
+.accepted-banner span{font-size:13px;color:var(--green-dark);}
+.form-textarea{width:100%;padding:11px 13px;border:1.5px solid var(--g200);border-radius:12px;font-size:14px;font-family:var(--font);background:var(--g50);color:var(--g800);outline:none;resize:none;transition:all .2s;line-height:1.5;font-weight:500;}
+.form-textarea:focus{border-color:var(--green);background:var(--white);box-shadow:0 0 0 4px rgba(26,122,69,0.1);}
+
+/* ── Map ── */
+#sc-k{height:calc(100vh - var(--nav-h));display:flex;flex-direction:column;overflow:hidden;padding-bottom:0;}
+.map-top{background:var(--white);flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,0.04);z-index:6;position:relative;}
+.map-top-row{display:flex;align-items:center;justify-content:space-between;padding:15px 16px 11px;}
+.map-top-title{font-size:19px;font-weight:800;letter-spacing:-.4px;color:var(--g800);}
+.map-top-sub{font-size:12.5px;color:var(--g400);margin-top:2px;font-weight:500;}
+.map-live{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--green);background:var(--green-light);padding:6px 11px;border-radius:20px;flex-shrink:0;}
+.map-live-dot{width:7px;height:7px;border-radius:50%;background:var(--green-2);animation:liveDot 1.8s infinite;}
+@keyframes liveDot{0%{box-shadow:0 0 0 0 rgba(36,170,90,.5);}70%{box-shadow:0 0 0 7px rgba(36,170,90,0);}100%{box-shadow:0 0 0 0 rgba(36,170,90,0);}}
+.map-filters{padding:0 14px 12px;display:flex;gap:7px;overflow-x:auto;flex-shrink:0;}
+.map-filters::-webkit-scrollbar{display:none;}
+.filt{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;border:1.5px solid var(--g200);background:var(--white);color:var(--g600);cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;}
+.filt.active{background:var(--green);border-color:var(--green);color:white;box-shadow:0 2px 10px rgba(26,122,69,0.28);}
+#map-wrap{flex:1;min-height:0;position:relative;overflow:hidden;}
+#map{position:absolute;inset:0;width:100%;height:100%;background:#E8EDE6;}
+
+/* Floating map controls */
+.map-fab-col{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:8px;z-index:500;}
+.map-fab{width:42px;height:42px;border-radius:13px;background:var(--white);border:1px solid var(--g100);box-shadow:var(--shadow-md);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--g600);transition:transform .14s,color .14s;-webkit-tap-highlight-color:transparent;}
+.map-fab:active{transform:scale(.9);color:var(--green);}
+.map-fab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;}
+
+/* Custom markers */
+.mk-res{width:34px;height:34px;border-radius:11px;border:2.5px solid white;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:white;letter-spacing:-.3px;position:relative;}
+.mk-ring::after{content:'';position:absolute;inset:-7px;border-radius:14px;border:2.5px solid var(--orange);opacity:.55;animation:mkRing 2s ease-out infinite;}
+@keyframes mkRing{0%{transform:scale(.7);opacity:.7;}100%{transform:scale(1.5);opacity:0;}}
+.mk-vol{width:24px;height:24px;background:#3B82F6;border-radius:50%;border:3px solid white;box-shadow:0 3px 14px rgba(59,130,246,.55),0 1px 4px rgba(0,0,0,.12);position:relative;}
+.mk-vol::after{content:'';position:absolute;inset:-12px;border-radius:50%;background:rgba(59,130,246,.18);animation:mkPulseSoft 2.4s ease-out infinite;}
+@keyframes mkPulseSoft{0%{transform:scale(.6);opacity:.9;}100%{transform:scale(1.5);opacity:0;}}
+.mk-dest{width:14px;height:14px;border-radius:50%;background:var(--green);border:3px solid white;box-shadow:0 2px 10px rgba(26,122,69,.5);position:relative;}
+.mk-dest::after{content:'';position:absolute;inset:-9px;border-radius:50%;border:2.5px solid var(--green);animation:mkRing 1.8s ease-out infinite;}
+
+/* Route panel */
+.route-panel{position:absolute;left:12px;right:12px;bottom:12px;background:var(--white);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);padding:14px 15px;z-index:600;transform:translateY(150%);opacity:0;transition:transform .42s cubic-bezier(.32,.72,0,1),opacity .3s;border:1px solid var(--g100);}
+.route-panel.show{transform:translateY(0);opacity:1;}
+.rp-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.rp-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--green);background:var(--green-light);padding:3px 9px;border-radius:20px;margin-bottom:7px;}
+.rp-badge svg{width:11px;height:11px;stroke:var(--green);fill:none;stroke-width:2.5;}
+.rp-name{font-size:16.5px;font-weight:800;letter-spacing:-.3px;color:var(--g800);line-height:1.2;}
+.rp-addr{font-size:12.5px;color:var(--g400);margin-top:2px;display:flex;align-items:center;gap:4px;}
+.rp-addr svg{width:12px;height:12px;stroke:var(--g400);fill:none;stroke-width:2;flex-shrink:0;}
+.rp-close{width:30px;height:30px;border-radius:9px;background:var(--g100);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--g600);flex-shrink:0;}
+.rp-close svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.5;}
+.rp-stats{display:flex;gap:8px;margin:13px 0 12px;}
+.rp-stat{flex:1;background:var(--bg);border-radius:12px;padding:10px 6px;text-align:center;}
+.rp-stat-n{font-size:16px;font-weight:800;color:var(--g800);letter-spacing:-.3px;}
+.rp-stat-l{font-size:10.5px;color:var(--g400);margin-top:1px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.rp-go{width:100%;background:linear-gradient(135deg,var(--green-2),var(--green-dark));color:white;border:none;padding:12px;border-radius:13px;font-size:14px;font-weight:700;font-family:var(--font);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(26,122,69,.3);}
+.rp-go svg{width:16px;height:16px;stroke:white;fill:none;stroke-width:2;}
+.rp-loading{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--g600);font-weight:600;padding:6px 2px 2px;}
+.rp-spin{width:18px;height:18px;border:2.5px solid var(--g200);border-top-color:var(--green);border-radius:50%;animation:rpSpin .7s linear infinite;flex-shrink:0;}
+@keyframes rpSpin{to{transform:rotate(360deg);}}
+.rp-mode-tag{font-size:10px;font-weight:700;color:var(--g400);background:var(--g100);padding:2px 7px;border-radius:10px;}
+
+.map-legend{padding:10px 16px;background:rgba(255,255,255,0.94);border-top:1px solid var(--g100);display:flex;gap:14px;flex-wrap:wrap;flex-shrink:0;backdrop-filter:blur(16px);}
+.leg{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--g600);font-weight:500;}
+.leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+/* Home map CTA */
+.home-map-cta{display:flex;align-items:center;gap:13px;background:var(--white);border:1.5px solid var(--g100);border-radius:var(--r-lg);padding:14px 15px;margin-bottom:22px;box-shadow:var(--shadow-xs);cursor:pointer;transition:transform .14s,box-shadow .2s;}
+.home-map-cta:active{transform:scale(.985);}
+.hmc-icon{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,var(--green-2),var(--green-dark));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(26,122,69,.28);}
+.hmc-icon svg{width:23px;height:23px;stroke:white;fill:none;stroke-width:2;}
+.hmc-txt{flex:1;min-width:0;}
+.hmc-txt strong{display:block;font-size:14.5px;font-weight:700;color:var(--g800);letter-spacing:-.2px;}
+.hmc-txt span{font-size:12.5px;color:var(--g400);}
+.hmc-chev{width:20px;height:20px;stroke:var(--g300);fill:none;stroke-width:2;flex-shrink:0;}
+
+/* ════════ DARK MODE ════════ */
+body{transition:background-color .35s ease,color .35s ease;}
+.card,.ni,.bnav,.map-fab,.login-input,.form-textarea,.home-map-cta,.home-setting,.install-banner,.hcard,.qs-card,.home-avail{transition:background-color .35s ease,color .35s ease,border-color .35s ease;}
+body.dark{
+  --bg:#0F1714; --white:#19221D; --g50:#1E2823;
+  --g100:#27322C; --g200:#34403A; --g300:#55615A;
+  --g400:#9AA49D; --g600:#C2CBC4; --g800:#EDF2EE;
+  --green-light:#143726;
+  --shadow-xs:0 1px 2px rgba(0,0,0,0.4);
+  --shadow:0 2px 12px rgba(0,0,0,0.45);
+  --shadow-md:0 8px 28px rgba(0,0,0,0.5);
+  --shadow-lg:0 24px 64px rgba(0,0,0,0.6),0 6px 20px rgba(0,0,0,0.4);
+}
+body.dark .bnav{background:rgba(21,30,25,0.88)!important;}
+body.dark .map-top,body.dark .map-legend{background:rgba(21,30,25,0.94);}
+body.dark .leaflet-popup-content-wrapper,body.dark .leaflet-popup-tip{background:var(--white)!important;color:var(--g800);}
+body.dark .filt{background:var(--white);}
+body.dark .map-fab{background:var(--white);}
+
+/* Home setting row (dark toggle) */
+.home-setting{display:flex;align-items:center;gap:13px;background:var(--white);border:1.5px solid var(--g100);border-radius:var(--r-lg);padding:13px 15px;margin-bottom:22px;box-shadow:var(--shadow-xs);}
+.hs-icon{width:44px;height:44px;border-radius:13px;background:var(--green-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hs-icon svg{width:21px;height:21px;stroke:var(--green);fill:none;stroke-width:2;}
+.hs-txt{flex:1;min-width:0;}
+.hs-txt strong{display:block;font-size:14px;font-weight:700;color:var(--g800);letter-spacing:-.2px;}
+.hs-txt span{font-size:12px;color:var(--g400);}
+
+/* ════════ IMPACT / STREAK ════════ */
+.impact{background:linear-gradient(140deg,#0C3920 0%,var(--green) 55%,#24AA5A 100%);border-radius:var(--r-xl);padding:18px 18px 8px;margin-bottom:22px;position:relative;overflow:hidden;box-shadow:0 10px 30px rgba(26,122,69,.28);}
+.impact::before{content:'';position:absolute;top:-40px;right:-30px;width:160px;height:160px;background:radial-gradient(circle,rgba(255,255,255,.12),transparent 70%);border-radius:50%;}
+.impact-head{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;margin-bottom:13px;}
+.impact-title{font-size:13px;color:rgba(255,255,255,.82);font-weight:600;}
+.impact-streak{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:5px 11px;backdrop-filter:blur(8px);}
+.impact-streak svg{width:13px;height:13px;stroke:#FFD27A;fill:#FFD27A;}
+.impact-streak span{font-size:12px;font-weight:800;color:white;}
+.impact-stats{display:flex;gap:22px;position:relative;z-index:1;margin-bottom:14px;}
+.impact-stat-n{font-size:26px;font-weight:900;color:white;letter-spacing:-1px;line-height:1;}
+.impact-stat-l{font-size:11px;color:rgba(255,255,255,.72);margin-top:4px;font-weight:500;}
+.impact-chart{display:flex;align-items:flex-end;gap:6px;height:46px;position:relative;z-index:1;padding-bottom:20px;}
+.ic-col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;position:relative;}
+.ic-bar{width:100%;background:rgba(255,255,255,.26);border-radius:5px 5px 3px 3px;min-height:5px;}
+.ic-bar.on{background:linear-gradient(180deg,#EAFBF1,rgba(255,255,255,.6));}
+.ic-day{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-size:9.5px;color:rgba(255,255,255,.65);font-weight:600;}
+
+/* ════════ CELEBRATION ════════ */
+.celebrate{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:700;pointer-events:none;display:flex;align-items:center;justify-content:center;}
+.celebrate-card{background:var(--white);border-radius:var(--r-xl);padding:26px 32px;box-shadow:var(--shadow-lg);text-align:center;transform:scale(.7);opacity:0;transition:transform .42s cubic-bezier(.34,1.56,.64,1),opacity .3s;}
+.celebrate.show .celebrate-card{transform:scale(1);opacity:1;}
+.celebrate-emoji{font-size:46px;margin-bottom:6px;line-height:1;}
+.celebrate-card strong{display:block;font-size:18px;font-weight:800;color:var(--g800);letter-spacing:-.3px;margin-bottom:4px;}
+.celebrate-card span{font-size:13.5px;color:var(--g400);}
+.confetti{position:absolute;top:50%;left:50%;width:9px;height:14px;border-radius:2px;opacity:0;}
+.celebrate.show .confetti{animation:confettiBurst 1.5s ease-out forwards;}
+@keyframes confettiBurst{0%{opacity:1;transform:translate(0,0) rotate(0);}100%{opacity:0;transform:translate(var(--cx),var(--cy)) rotate(600deg);}}
+
+/* ════════ INSTALL BANNER ════════ */
+.install-banner{display:flex;align-items:center;gap:12px;background:var(--white);border:1.5px solid var(--green-light);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:22px;box-shadow:var(--shadow-xs);}
+.ib-icon{width:42px;height:42px;border-radius:12px;background:var(--green-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ib-icon svg{width:21px;height:21px;stroke:var(--green);fill:none;stroke-width:2;}
+.ib-txt{flex:1;min-width:0;}
+.ib-txt strong{display:block;font-size:13.5px;font-weight:700;color:var(--g800);}
+.ib-txt span{font-size:12px;color:var(--g400);}
+.ib-btn{background:var(--green);color:white;border:none;border-radius:10px;padding:9px 14px;font-size:12.5px;font-weight:700;font-family:var(--font);cursor:pointer;flex-shrink:0;}
+.ib-x{background:none;border:none;color:var(--g300);cursor:pointer;padding:4px;flex-shrink:0;font-size:18px;line-height:1;}
+.nbadge.pulse{animation:badgePulse .6s ease;}
+@keyframes badgePulse{0%,100%{transform:scale(1);}35%{transform:scale(1.55);}}
+
+/* ── History ── */
+.prof-bar{
+  background:linear-gradient(155deg,#0C3920 0%,var(--green) 60%,#29B85E 100%);
+  padding:24px 20px 28px;position:relative;overflow:hidden;
+}
+.prof-bar::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(255,255,255,0.08) 0%,transparent 70%);border-radius:50%;}
+.prof-bar::after{content:'';position:absolute;bottom:-60px;left:-20px;width:190px;height:190px;background:radial-gradient(circle,rgba(255,255,255,0.05) 0%,transparent 70%);border-radius:50%;}
+.prof-ava{width:54px;height:54px;border-radius:18px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:white;margin-bottom:12px;border:1.5px solid rgba(255,255,255,0.22);position:relative;z-index:1;box-shadow:0 4px 16px rgba(0,0,0,0.14);}
+.prof-name{font-size:22px;font-weight:800;color:white;letter-spacing:-.5px;position:relative;z-index:1;}
+.prof-sub{font-size:13px;color:rgba(255,255,255,0.7);margin-top:3px;position:relative;z-index:1;}
+.stats-row{display:flex;gap:10px;padding:14px 16px;overflow-x:auto;}
+.stat{background:var(--white);border-radius:var(--r-lg);padding:14px 16px;box-shadow:var(--shadow);min-width:105px;text-align:center;flex-shrink:0;border:1.5px solid var(--g100);}
+.stat-n{font-size:28px;font-weight:900;color:var(--green);letter-spacing:-1.5px;}
+.stat-l{font-size:12px;color:var(--g400);line-height:1.3;margin-top:3px;font-weight:500;}
+.day-lbl{font-size:11.5px;font-weight:700;color:var(--g400);padding:8px 20px 4px;text-transform:uppercase;letter-spacing:1px;}
+.hcard{margin:0 16px 10px;background:var(--white);border-radius:var(--r-lg);padding:14px;box-shadow:var(--shadow-xs);border:1.5px solid var(--g100);border-left:4px solid var(--green);}
+.hcard-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.hcard-name{font-size:14.5px;font-weight:700;letter-spacing:-.2px;}
+.hcard-status{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--green);}
+.hcard-status svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;}
+.hcard-time{font-size:12.5px;color:var(--g400);margin-bottom:5px;}
+.hcard-desc{font-size:13.5px;color:var(--g600);}
+.hcard-note{margin-top:8px;padding:8px 10px;background:var(--g100);border-radius:9px;font-size:13px;color:var(--g600);font-style:italic;}
+.filter-row{padding:10px 16px;display:flex;gap:7px;overflow-x:auto;}
+.mot{margin:14px 16px 4px;background:linear-gradient(135deg,var(--green-2) 0%,var(--green) 50%,var(--green-dark) 100%);border-radius:var(--r-lg);padding:20px;text-align:center;box-shadow:0 6px 20px rgba(26,122,69,0.28);}
+.mot p{color:white;font-size:14.5px;line-height:1.55;}
+.mot strong{font-size:17px;display:block;margin-bottom:4px;letter-spacing:-.3px;}
+
+/* ── Empty state ── */
+.empty{text-align:center;padding:60px 32px;}
+.empty svg{width:52px;height:52px;stroke:var(--g200);fill:none;margin-bottom:14px;}
+.empty h3{font-size:18px;font-weight:700;margin-bottom:8px;letter-spacing:-.3px;}
+.empty p{font-size:14.5px;color:var(--g400);line-height:1.55;}
+
+/* ══════════════════════════════════
+   AVAILABILITY SCREEN
+══════════════════════════════════ */
+#av-screen{
+  position:fixed;top:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:430px;height:100vh;z-index:300;
+  background:var(--bg);display:none;flex-direction:column;
+  animation:slideUp .28s cubic-bezier(.32,.72,0,1);
+}
+#av-screen.open{display:flex;}
+.av-head{background:rgba(255,255,255,0.92);padding:14px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--g100);flex-shrink:0;backdrop-filter:blur(20px);}
+.av-body{flex:1;overflow-y:auto;padding:20px 16px 40px;}
+.day-row{background:var(--white);border-radius:var(--r-lg);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow-xs);border:1.5px solid var(--g100);}
+.day-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;}
+.day-name{font-size:15px;font-weight:700;color:var(--g800);letter-spacing:-.2px;}
+.day-slots{padding:0 16px 14px;display:flex;gap:7px;flex-wrap:wrap;}
+.slot{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;border:1.5px solid var(--g200);background:var(--g50);color:var(--g600);cursor:pointer;transition:all .2s;user-select:none;}
+.slot.active{background:var(--green-light);border-color:var(--green);color:var(--green);}
+.av-save{position:sticky;bottom:0;padding:14px 16px 32px;background:linear-gradient(to top,var(--bg) 70%,transparent);}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:calc(var(--nav-h) + 12px);left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:rgba(18,22,18,0.93);color:white;
+  padding:11px 18px;border-radius:30px;font-size:14px;font-weight:500;
+  z-index:900;transition:all .3s cubic-bezier(.32,.72,0,1);opacity:0;pointer-events:none;
+  max-width:340px;width:calc(100% - 40px);text-align:center;
+  backdrop-filter:blur(16px);box-shadow:0 8px 28px rgba(0,0,0,0.24);letter-spacing:-.05px;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.grn{background:rgba(26,122,69,0.96);}
+
+/* Leaflet overrides */
+.leaflet-popup-content-wrapper{border-radius:16px !important;box-shadow:var(--shadow-md) !important;font-family:var(--font) !important;border:1.5px solid var(--g100) !important;}
+.leaflet-popup-content{margin:13px 15px !important;font-family:var(--font);}
+.pop-name{font-weight:700;font-size:14px;margin-bottom:2px;color:var(--g800);letter-spacing:-.2px;}
+.pop-kamer{font-size:12px;color:var(--g400);margin-bottom:6px;}
+.pop-desc{font-size:12.5px;color:var(--g600);line-height:1.45;margin-bottom:9px;}
+.pop-btn{background:linear-gradient(135deg,var(--green-2),var(--green-dark));color:white;border:none;padding:8px 12px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;width:100%;font-family:var(--font);}
+.pop-btn-2{background:var(--white);color:var(--green);border:1.5px solid var(--green-light);margin-top:6px;display:flex;align-items:center;justify-content:center;gap:5px;}
+.pop-btn-2 svg{width:13px;height:13px;stroke:var(--green);fill:none;stroke-width:2;}
+.leaflet-control-attribution{font-size:10px !important;}
+
+/* ══════════════════════════════════
+   ANIMATED HERO / HOME SCREEN
+══════════════════════════════════ */
+.hero-section{
+  background:linear-gradient(168deg,#061811 0%,#0C3A20 18%,#144D2C 36%,#1A7045 58%,#22985A 80%,#2FC068 100%);
+  min-height:92vh;padding:60px 28px 80px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;position:relative;overflow:hidden;
+}
+.hero-section::before{content:'';position:absolute;top:-80px;right:-60px;width:420px;height:420px;background:radial-gradient(circle,rgba(255,255,255,0.07) 0%,transparent 68%);border-radius:50%;}
+.hero-section::after{content:'';position:absolute;bottom:-100px;left:-50px;width:360px;height:360px;background:radial-gradient(circle,rgba(255,255,255,0.05) 0%,transparent 68%);border-radius:50%;}
+.hero-orb{position:absolute;border-radius:50%;pointer-events:none;}
+.hero-orb-1{width:160px;height:160px;top:12%;right:-20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);animation:heroFloat 9s ease-in-out infinite;}
+.hero-orb-2{width:110px;height:110px;bottom:16%;left:-15px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);animation:heroFloat 11s ease-in-out infinite reverse;}
+@keyframes heroFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
+
+/* pill badge */
+.hero-pill{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,0.11);border:1px solid rgba(255,255,255,0.2);
+  border-radius:20px;padding:7px 14px 7px 10px;font-size:13px;font-weight:600;color:white;
+  margin-bottom:36px;backdrop-filter:blur(12px);cursor:pointer;position:relative;z-index:1;
+  transition:background .2s;box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.hero-pill:hover{background:rgba(255,255,255,0.18);}
+.hero-pill-dot{width:8px;height:8px;border-radius:50%;background:#5EF98E;box-shadow:0 0 0 3px rgba(94,249,142,0.22);}
+
+/* title */
+.hero-title-line{
+  font-size:clamp(42px,11vw,58px);font-weight:900;color:white;
+  letter-spacing:-2.2px;line-height:1.04;position:relative;z-index:1;
+}
+.hero-title-line span{color:rgba(255,255,255,0.55);}
+
+/* animated word container */
+.hero-anim-wrap{
+  position:relative;height:clamp(50px,12vw,68px);width:100%;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;margin-bottom:28px;
+}
+.anim-word{
+  position:absolute;
+  font-size:clamp(42px,11vw,58px);font-weight:900;letter-spacing:-2.2px;line-height:1.04;
+  color:white;opacity:0;transform:translateY(110%);pointer-events:none;
+  transition:opacity .45s ease, transform .5s cubic-bezier(.34,1.56,.64,1);
+  white-space:nowrap;
+}
+.anim-word.entering{opacity:1;transform:translateY(0);}
+.anim-word.exiting{opacity:0;transform:translateY(-110%);transition:opacity .28s ease,transform .32s ease;}
+
+/* subtitle */
+.hero-sub{
+  font-size:16px;color:rgba(255,255,255,0.72);line-height:1.68;
+  max-width:300px;margin:0 auto 40px;position:relative;z-index:1;
+}
+
+/* CTA buttons */
+.hero-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;}
+.hbtn-solid{
+  background:white;color:var(--green-dark);border:none;
+  padding:13px 22px;border-radius:14px;font-size:15px;font-weight:700;
+  font-family:var(--font);cursor:pointer;display:flex;align-items:center;gap:8px;
+  box-shadow:0 8px 28px rgba(0,0,0,0.22);transition:all .2s;letter-spacing:-.2px;
+}
+.hbtn-solid:active{transform:scale(0.97);box-shadow:0 4px 14px rgba(0,0,0,0.18);}
+.hbtn-solid svg{width:16px;height:16px;stroke:var(--green-dark);fill:none;stroke-width:2.5;}
+.hbtn-ghost{
+  background:rgba(255,255,255,0.11);color:white;
+  border:1.5px solid rgba(255,255,255,0.26);
+  padding:13px 20px;border-radius:14px;font-size:15px;font-weight:600;
+  font-family:var(--font);cursor:pointer;display:flex;align-items:center;gap:8px;
+  backdrop-filter:blur(12px);transition:all .2s;letter-spacing:-.1px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.hbtn-ghost:active{transform:scale(0.97);}
+.hbtn-ghost svg{width:16px;height:16px;stroke:white;fill:none;stroke-width:2;}
+
+/* scroll hint */
+.hero-scroll-hint{
+  position:absolute;bottom:22px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:5px;z-index:1;
+  animation:heroScrollBounce 2.4s ease-in-out infinite;
+}
+.hero-scroll-hint span{font-size:11px;color:rgba(255,255,255,0.38);letter-spacing:.4px;}
+.hero-scroll-hint svg{width:18px;height:18px;stroke:rgba(255,255,255,0.35);fill:none;}
+@keyframes heroScrollBounce{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(6px);}}
+
+/* home content (below hero) */
+.home-content{padding:24px 16px 8px;}
+.home-sec-title{font-size:18px;font-weight:800;color:var(--g800);letter-spacing:-.4px;margin-bottom:12px;}
+.qs-row{display:flex;gap:10px;margin-bottom:20px;}
+.qs-card{flex:1;background:var(--white);border-radius:var(--r-lg);padding:14px 10px;text-align:center;box-shadow:var(--shadow);border:1.5px solid var(--g100);}
+.qs-n{font-size:26px;font-weight:900;color:var(--green);letter-spacing:-1.2px;}
+.qs-l{font-size:11px;color:var(--g400);margin-top:3px;font-weight:500;line-height:1.3;}
+.home-avail{
+  background:var(--white);border-radius:var(--r-lg);padding:14px 16px;
+  box-shadow:var(--shadow);border:1.5px solid var(--g100);
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;
+}
+.home-avail-info strong{font-size:14.5px;font-weight:700;display:block;letter-spacing:-.2px;}
+.home-avail-info span{font-size:12.5px;color:var(--g400);}
+.home-preview{
+  background:var(--white);border-radius:var(--r-lg);padding:14px 15px;
+  margin-bottom:10px;box-shadow:var(--shadow-xs);border:1.5px solid var(--g100);
+  border-left:4px solid transparent;cursor:pointer;transition:transform .2s,box-shadow .2s;
+}
+.home-preview:active{transform:scale(0.987);box-shadow:none;}
+.home-preview.oc{border-left-color:var(--orange);}
+.home-preview.gr{border-left-color:var(--green);}
+.hp-name{font-size:14px;font-weight:700;margin-bottom:2px;letter-spacing:-.2px;}
+.hp-desc{font-size:13px;color:var(--g600);line-height:1.42;}
+.hp-meta{font-size:12px;color:var(--g400);margin-top:5px;}
+.home-empty{
+  background:var(--white);border-radius:var(--r-lg);padding:24px 20px;
+  text-align:center;box-shadow:var(--shadow-xs);border:1.5px solid var(--g100);margin-bottom:20px;
+}
+.home-empty svg{width:36px;height:36px;stroke:var(--g200);fill:none;margin-bottom:10px;}
+.home-empty p{font-size:14px;color:var(--g400);}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-logo">
+    <div class="login-logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+    </div>
+    <div class="login-appname">ADL-Actief</div>
+    <div class="login-tagline">CareSense vrijwilligersapp · Markenheem</div>
+  </div>
+  <div class="login-card">
+    <h2>Inloggen</h2>
+    <p>Gebruik je Markenheem-vrijwilligersaccount</p>
+    <div class="field-wrap">
+      <div class="field-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+      <input class="login-input" type="email" id="li-email" placeholder="vrijwilliger@markenheem.nl" autocomplete="email">
+    </div>
+    <div class="field-wrap">
+      <div class="field-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      <input class="login-input" type="password" id="li-pass" placeholder="Wachtwoord" autocomplete="current-password">
+    </div>
+    <div class="login-error" id="li-error">Onjuiste inloggegevens. Probeer het opnieuw.</div>
+    <button class="login-btn" onclick="doLogin()">Inloggen</button>
+  </div>
+  <div class="demo-hint">
+    <strong>Demo:</strong> gebruik een willekeurig e-mailadres en wachtwoord
+  </div>
+  <div class="login-meta">Beveiligd via <strong>Markenheem SSO</strong> · AVG-conform</div>
+</div>
+
+<!-- ══════════════════════════════════
+     ONBOARDING
+══════════════════════════════════ -->
+<div id="onboarding">
+  <!-- Step 1 -->
+  <div class="ob-step active" id="ob1">
+    <div class="ob-hero">
+      <div class="ob-icon"><svg viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></div>
+      <div class="ob-title">Welkom bij ADL-Actief</div>
+      <div class="ob-sub">Jij helpt bewoners van Markenheem met kleine praktische en sociale taken</div>
+    </div>
+    <div class="ob-body">
+      <div class="info-block">
+        <div class="ib-head"><div class="ib-icon g"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="ib-title">Alleen voor goedgekeurde vrijwilligers</div></div>
+        <p>Je hebt een VOG overlegd en bent goedgekeurd door Markenheem. Welkom in het team.</p>
+      </div>
+      <div class="info-block">
+        <div class="ib-head"><div class="ib-icon g"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="ib-title">Wat is ADL-Actief?</div></div>
+        <p>Je ontvangt meldingen van CareSense AI. Alleen praktische en sociale taken — nooit medische handelingen. Die gaan altijd naar de verzorgenden.</p>
+      </div>
+      <div class="info-block">
+        <div class="ib-head"><div class="ib-icon o"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div><div class="ib-title">Klein maar waardevol</div></div>
+        <p>Een kopje thee aanbieden, even buiten zitten, een deur dichtdoen. Jij maakt het dagelijks leven een stukje beter.</p>
+      </div>
+    </div>
+    <div class="ob-footer">
+      <div class="step-dots"><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <button class="btn btn-p btn-full" onclick="obNext(2)">Volgende</button>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="ob-step" id="ob2">
+    <div class="ob-hero" style="padding:44px 32px 32px;">
+      <div class="ob-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div class="ob-title">Vertel ons over jezelf</div>
+    </div>
+    <div class="ob-body">
+      <label class="form-label">Jouw voornaam</label>
+      <input type="text" class="form-input" id="ob-name" placeholder="Bijv. Lars" value="Lars">
+      <label class="form-label">Woonplaats / wijk</label>
+      <input type="text" class="form-input" id="ob-loc" placeholder="Bijv. Doetinchem centrum" value="Doetinchem centrum">
+      <label class="form-label">Beschikbaarheid (globaal)</label>
+      <div class="chips">
+        <div class="chip sel" onclick="toggleChip(this)">Ochtend</div>
+        <div class="chip" onclick="toggleChip(this)">Middag</div>
+        <div class="chip" onclick="toggleChip(this)">Avond</div>
+        <div class="chip sel" onclick="toggleChip(this)">Weekend</div>
+      </div>
+    </div>
+    <div class="ob-footer">
+      <div class="step-dots"><div class="dot"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <button class="btn btn-p btn-full" onclick="obNext(3)">Volgende</button>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="ob-step" id="ob3">
+    <div class="ob-hero" style="padding:44px 32px 32px;">
+      <div class="ob-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12h6M9 16h4"/></svg></div>
+      <div class="ob-title">Drie soorten taken</div>
+    </div>
+    <div class="ob-body">
+      <div class="info-block"><div class="ib-head"><div class="ib-icon g"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><div class="ib-title">Sociaal bezoek</div></div><p>Gezelschap houden, samen buiten zitten, een goed gesprek voeren. Klein maar onmisbaar.</p></div>
+      <div class="info-block"><div class="ib-head"><div class="ib-icon g"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div><div class="ib-title">Praktische hulp</div></div><p>Een deur dichtdoen, iets aanreiken, structuur bieden bij het dagritme. Kleine dingen met grote impact.</p></div>
+      <div class="info-block"><div class="ib-head"><div class="ib-icon o"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div><div class="ib-title">Herinnering brengen</div></div><p>Rustig herinneren aan drinken of aankleden — altijd vriendelijk, nooit dwingend.</p></div>
+    </div>
+    <div class="ob-footer">
+      <div class="step-dots"><div class="dot"></div><div class="dot"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div></div>
+      <button class="btn btn-p btn-full" onclick="obNext(4)">Volgende</button>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="ob-step" id="ob4">
+    <div class="ob-hero" style="padding:44px 32px 32px;">
+      <div class="ob-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="ob-title">Privacy &amp; veiligheid</div>
+    </div>
+    <div class="ob-body">
+      <div class="info-block" style="border-left:3px solid var(--green);"><p>Je ziet alleen wat je nodig hebt. <strong>Sensordata, medische informatie en dossiers zijn niet zichtbaar</strong> voor vrijwilligers.</p></div>
+      <div class="info-block" style="border-left:3px solid var(--green);"><p>Je ontvangt alleen meldingen die CareSense AI heeft beoordeeld als <strong>praktisch of sociaal</strong>. Medische situaties gaan altijd naar de verzorgenden.</p></div>
+      <div class="info-block" style="border-left:3px solid var(--green);"><p>Alles wat je in de app doet wordt veilig opgeslagen <strong>conform de AVG</strong>. Toestemming is geregeld via Markenheem.</p></div>
+      <div class="info-block" style="border-left:3px solid var(--green);"><p>Jouw notities zijn alleen zichtbaar voor jou en de zorgorganisatie — <strong>nooit voor andere vrijwilligers</strong>.</p></div>
+    </div>
+    <div class="ob-footer">
+      <div class="step-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot active"></div><div class="dot"></div></div>
+      <button class="btn btn-p btn-full" onclick="obNext(5)">Begrepen, volgende</button>
+    </div>
+  </div>
+
+  <!-- Step 5 -->
+  <div class="ob-step" id="ob5">
+    <div class="ob-hero" style="padding:64px 32px 40px;">
+      <div style="font-size:60px;margin-bottom:16px;position:relative;z-index:1;">🌿</div>
+      <div class="ob-title">Je staat klaar!</div>
+      <div class="ob-sub">Zodra er een melding voor jou is, ontvang je een notificatie. Bedankt dat je er bent.</div>
+    </div>
+    <div class="ob-body">
+      <div class="info-block" style="text-align:center;padding:24px 16px;">
+        <div style="font-size:28px;margin-bottom:10px;">👋</div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:6px;" id="ob-welcome">Welkom, Lars!</div>
+        <div style="font-size:14px;color:var(--g400);" id="ob-welcome-sub">Beschikbaar op ochtenden &amp; weekend · Doetinchem centrum</div>
+      </div>
+    </div>
+    <div class="ob-footer">
+      <div class="step-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot active"></div></div>
+      <button class="btn btn-p btn-full" onclick="startApp()">Open de app</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MAIN APP
+══════════════════════════════════ -->
+<div id="app">
+  <!-- HOME / HERO SCREEN -->
+  <div class="screen" id="sc-home" style="display:block;">
+    <div class="hero-section">
+      <div class="hero-orb hero-orb-1"></div>
+      <div class="hero-orb hero-orb-2"></div>
+      <div class="hero-pill">
+        <div class="hero-pill-dot"></div>
+        CareSense AI · Markenheem
+      </div>
+      <div class="hero-title-line">Jij bent</div>
+      <div class="hero-anim-wrap" id="hero-anim-wrap">
+        <!-- words injected by JS -->
+      </div>
+      <p class="hero-sub">Als vrijwilliger bij Markenheem maak jij het dagelijks leven van bewoners een stukje beter — met kleine momenten die er écht toe doen.</p>
+      <div class="hero-btns">
+        <button class="hbtn-solid" onclick="tab('m')">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          Bekijk meldingen
+        </button>
+        <button class="hbtn-ghost" onclick="openAv()">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Beschikbaarheid
+        </button>
+      </div>
+      <div class="hero-scroll-hint">
+        <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        <span>Scroll voor overzicht</span>
+      </div>
+    </div>
+
+    <!-- Content below hero -->
+    <div class="home-content" id="home-content">
+      <!-- rendered by renderHome() -->
+    </div>
+  </div>
+
+  <div class="screen" id="sc-m" style="display:none;"></div>
+  <div class="screen" id="sc-b" style="display:none;"></div>
+  <div id="sc-k" style="display:none;">
+    <div class="map-top">
+      <div class="map-top-row">
+        <div>
+          <div class="map-top-title">Kaart &amp; routes</div>
+          <div class="map-top-sub" id="map-top-sub">Bewoners in jouw omgeving</div>
+        </div>
+        <div class="map-live"><span class="map-live-dot"></span>Live</div>
+      </div>
+      <div class="map-filters" id="map-filters">
+        <button class="filt active" onclick="mapFilter('all',this)">Alle bewoners</button>
+        <button class="filt" onclick="mapFilter('melding',this)">Met melding</button>
+        <button class="filt" onclick="mapFilter('nearby',this)">Dichtbij</button>
+      </div>
+    </div>
+    <div id="map-wrap">
+      <div id="map"></div>
+      <div class="map-fab-col">
+        <button class="map-fab" onclick="mapRecenter()" aria-label="Overzicht">
+          <svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/></svg>
+        </button>
+        <button class="map-fab" onclick="mapLocate()" aria-label="Mijn locatie">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+        </button>
+      </div>
+      <div class="route-panel" id="route-panel">
+        <div class="rp-head">
+          <div style="min-width:0;">
+            <div class="rp-badge"><svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>Route actief</div>
+            <div class="rp-name" id="rp-name"></div>
+            <div class="rp-addr" id="rp-addr"></div>
+          </div>
+          <button class="rp-close" onclick="clearRoute()" aria-label="Sluiten">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div id="rp-content"></div>
+      </div>
+    </div>
+    <div class="map-legend">
+      <div class="leg"><div class="leg-dot" style="background:var(--orange);"></div>Aandacht gewenst</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--green);"></div>Praktische hulp</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--g300);"></div>Geen melding</div>
+      <div class="leg"><div class="leg-dot" style="background:#3B82F6;"></div>Jouw locatie</div>
+    </div>
+  </div>
+  <div class="screen" id="sc-g" style="display:none;"></div>
+  <div class="screen" id="sc-av" style="display:none;"></div>
+  <div class="screen" id="sc-w" style="display:none;"></div>
+
+  <nav class="bnav">
+    <div class="ni" id="nav-m" onclick="tab('m')">
+      <div class="ni-wrap">
+        <svg viewBox="0 0 24 24" style="width:21px;height:21px;"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <div class="nbadge" id="nbadge">4</div>
+      </div>
+      <span>Meldingen</span>
+    </div>
+    <div class="ni" id="nav-b" onclick="tab('b')">
+      <svg viewBox="0 0 24 24" style="width:21px;height:21px;"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      <span>Bewoners</span>
+    </div>
+    <div class="ni active" id="nav-home" onclick="tab('home')">
+      <svg viewBox="0 0 24 24" style="width:23px;height:23px;"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </div>
+    <div class="ni" id="nav-av" onclick="tab('av')">
+      <svg viewBox="0 0 24 24" style="width:21px;height:21px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Beschikb.</span>
+    </div>
+    <div class="ni" id="nav-w" onclick="tab('w')">
+      <svg viewBox="0 0 24 24" style="width:21px;height:21px;"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      <span>Wetgeving</span>
+    </div>
+  </nav>
+</div>
+
+<!-- ══════════════════════════════════
+     DETAIL SCREENS
+══════════════════════════════════ -->
+<div class="ds" id="ds-m">
+  <div class="ds-head">
+    <div class="back" onclick="closeDs('ds-m')"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+    <div><div class="ds-htitle" id="ds-m-title"></div><div class="ds-hsub" id="ds-m-sub"></div></div>
+  </div>
+  <div class="ds-body" id="ds-m-body"></div>
+</div>
+
+<div class="ds" id="ds-b">
+  <div class="ds-head">
+    <div class="back" onclick="closeDs('ds-b')"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+    <div><div class="ds-htitle" id="ds-b-title"></div><div class="ds-hsub" id="ds-b-sub"></div></div>
+  </div>
+  <div class="ds-body" id="ds-b-body"></div>
+</div>
+
+<!-- ══════════════════════════════════
+     AVAILABILITY SCREEN
+══════════════════════════════════ -->
+<div id="av-screen">
+  <div class="av-head">
+    <div class="back" onclick="closeAv()"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+    <div><div class="ds-htitle">Mijn beschikbaarheid</div><div class="ds-hsub">Per dag en dagdeel instellen</div></div>
+  </div>
+  <div class="av-body" id="av-body"></div>
+  <div class="av-save">
+    <button class="btn btn-p btn-full" onclick="saveAvailability()">Beschikbaarheid opslaan</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Viering -->
+<div class="celebrate" id="celebrate"></div>
+
+<!-- ══════════════════════════════════
+     SCRIPTS
+══════════════════════════════════ -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ═══════════════════════════
+// DATA
+// ═══════════════════════════
+const V = { name:'Lars', loc:'Doetinchem centrum', avail:['Ochtend','Weekend'], online:true };
+
+// Availability state per day
+const AVAIL = {
+  Ma: { on:true,  slots:['Ochtend'] },
+  Di: { on:false, slots:[] },
+  Wo: { on:true,  slots:['Ochtend'] },
+  Do: { on:false, slots:[] },
+  Vr: { on:false, slots:[] },
+  Za: { on:true,  slots:['Ochtend','Middag'] },
+  Zo: { on:false, slots:[] }
+};
+
+// Markenheem: Kruisbergseweg 4, Doetinchem
+const MARKENHEEM = { lat: 51.9741, lng: 6.3098, label: 'Markenheem', addr: 'Kruisbergseweg 4, Doetinchem' };
+// Volunteer location: Doetinchem centrum
+const VOLUNTEER  = { lat: 51.9688, lng: 6.2901 };
+const NEARBY_KM  = 1.0; // grens voor 'Dichtbij'-filter
+
+const RES = [
+  { id:1, name:'Mevrouw Jansen',  kamer:'kamer 12', init:'MJ', col:'#5B8DB8',
+    melding:{ type:'orange', desc:'Mevrouw Jansen heeft vandaag nog geen drinkmoment gehad voor 12:00.',
+      tijd:'09:47', afstand:'0,8 km',
+      gemeten:'Het systeem heeft geregistreerd dat er vandaag voor 12:00 nog geen drinkmoment is geweest.',
+      taak:'Ga langs bij mevrouw Jansen en bied haar iets te drinken aan. Dat kan water, thee of sap zijn.' },
+    tips:'Mevrouw Jansen reageert goed op vriendelijk contact. Ze praat graag over haar vroegere werk als onderwijzeres. Vraag liever "Wil je thee of water?" in plaats van "Je moet drinken".',
+    bio:'Was vroeger onderwijzeres. Houdt van gezelligheid en praten. Reageert goed op rustig contact.',
+    eerder:true, straat:'Bizetstraat 14', lat:51.9762, lng:6.2840 },
+
+  { id:2, name:'Meneer De Vries',  kamer:'kamer 18', init:'DV', col:'#7B6FB5',
+    melding:{ type:'green', desc:'Meneer De Vries is de afgelopen drie dagen niet buiten geweest.',
+      tijd:'10:15', afstand:'1,2 km',
+      gemeten:'Het systeem heeft de afgelopen drie dagen geen buitenactiviteit geregistreerd.',
+      taak:'Vraag meneer De Vries of hij zin heeft in een korte wandeling of om buiten te zitten.' },
+    tips:'Meneer De Vries houdt van korte rustige zinnen en klassieke muziek. Hij vindt het fijn om zelf keuzes te maken. Vraag dus liever "Wil je een korte wandeling of liever buiten zitten?" in plaats van "Je moet naar buiten".',
+    bio:'Was timmerman. Houdt van klassieke muziek en wandelen. Heeft graag keuzevrijheid.',
+    eerder:true, straat:'Houtmaat 52', lat:51.9585, lng:6.2710 },
+
+  { id:3, name:'Mevrouw Bakker',   kamer:'kamer 21', init:'MB', col:'#C06B8A',
+    melding:null,
+    tips:'Mevrouw Bakker houdt van tuinieren en vogels. Ze praat graag over haar kleinkinderen. Een rustig bezoek in de tuin of bij het raam met vogels doet haar goed.',
+    bio:'Houdt van tuinieren en vogels. Praat graag over haar kleinkinderen.',
+    eerder:false, straat:'Wijnbergseweg 8', lat:51.9705, lng:6.3075 },
+
+  { id:4, name:'Meneer Smit',      kamer:'kamer 7', init:'MS', col:'#4A8E6B',
+    melding:{ type:'green', desc:'Koelkastdeur bij meneer Smit staat al een tijd open.',
+      tijd:'11:02', afstand:'0,5 km',
+      gemeten:'Het systeem heeft geregistreerd dat de koelkastdeur al geruime tijd niet is gesloten.',
+      taak:'Doe de koelkastdeur dicht bij meneer Smit als die nog open staat. Een kort praatje is altijd welkom.' },
+    tips:'Meneer Smit houdt van kaartspellen. Rustig type, reageert goed op humor. Een kort grapje kan het ijs prima breken.',
+    bio:'Houdt van kaartspellen. Rustig type, reageert goed op humor.',
+    eerder:true, straat:'Terborgseweg 121', lat:51.9602, lng:6.2965 },
+
+  { id:5, name:'Mevrouw Peters',   kamer:'kamer 3', init:'MP', col:'#D4875A',
+    melding:null,
+    tips:'Mevrouw Peters houdt van lezen. Wordt wat onrustig bij drukte. Een rustig, kort bezoek werkt het beste. Vraag naar haar boek als je wilt beginnen.',
+    bio:'Houdt van lezen. Wordt wat onrustig bij drukte.',
+    eerder:false, straat:'Dr. Huber Noodtstraat 30', lat:51.9738, lng:6.2952 },
+
+  { id:6, name:'Meneer Van Dijk',  kamer:'kamer 9', init:'VD', col:'#6BA3C9',
+    melding:{ type:'orange', desc:'Meneer Van Dijk heeft zijn ochtendroutine nog niet gestart (kledingkast niet geopend).',
+      tijd:'09:12', afstand:'1,5 km',
+      gemeten:'Het systeem heeft geregistreerd dat de kledingkast vanochtend nog niet geopend is geweest.',
+      taak:'Ga langs bij meneer Van Dijk en help hem vriendelijk op weg met zijn ochtendroutine. Misschien een kop koffie aanbieden als startpunt.' },
+    tips:'Meneer Van Dijk is het prettigst als hij zelf het tempo bepaalt. Doe geen haast. Begin met een goed gesprekje voor je hem herinnert aan zijn routine.',
+    bio:'Houdt van rust en zijn eigen tempo. Reageert goed op een ontspannen aanpak.',
+    eerder:false, straat:'Hofstraat 5', lat:51.9650, lng:6.2885 }
+];
+
+// Afstanden afleiden uit échte coördinaten, zodat ze kloppen met de kaart
+RES.forEach(r => {
+  r.distKm = haversine(VOLUNTEER, { lat: r.lat, lng: r.lng });
+  if (r.melding) r.melding.afstand = fmtKm(r.distKm);
+});
+
+const HIST = [
+  { id:1, rid:1, date:'Gisteren',        time:'10:15', task:'Bezoek gebracht en samen thee gedronken bij mevrouw Jansen', note:'Heb samen thee gedronken, ging goed', status:'done' },
+  { id:2, rid:2, date:'Eergisteren',     time:'14:30', task:'Meneer De Vries een kwartier buiten begeleid',               note:'Kwartier buiten gezeten, was blij', status:'done' },
+  { id:3, rid:4, date:'3 dagen geleden', time:'09:45', task:'Koelkastdeur dichtgedaan bij meneer Smit, kort gekletst',    note:'Koelkastdeur dichtgedaan, kort gekletst', status:'done' }
+];
+
+let accepted = new Set();
+let skipped  = new Set();
+let done     = new Set();
+let leafMap  = null;
+let obCur    = 1;
+let resMarkers = {};      // id -> Leaflet marker
+let routeLayer = null;    // huidige route-polyline groep
+let destMarker = null;    // pulserende bestemmingsmarker
+let routeReq   = 0;       // race-guard voor async routes
+let tileLayerRef = null;  // kaarttegel-laag (voor dark-mode wissel)
+
+function activeMeldingen() {
+  return RES.filter(r => r.melding && !skipped.has(r.id) && !done.has(r.id));
+}
+
+// ═══════════════════════════
+// LOGIN
+// ═══════════════════════════
+function doLogin() {
+  const email = document.getElementById('li-email').value.trim();
+  const pass  = document.getElementById('li-pass').value;
+  const err   = document.getElementById('li-error');
+  if (!email || !pass) {
+    err.textContent = 'Vul je e-mailadres en wachtwoord in.';
+    err.style.display = 'block'; return;
+  }
+  err.style.display = 'none';
+  document.getElementById('login-screen').style.display = 'none';
+  const ob = document.getElementById('onboarding');
+  ob.classList.add('visible');
+}
+
+document.getElementById('li-pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// ═══════════════════════════
+// ONBOARDING
+// ═══════════════════════════
+function obNext(n) {
+  document.getElementById('ob'+obCur).classList.remove('active');
+  obCur = n;
+  document.getElementById('ob'+obCur).classList.add('active');
+  if (n === 5) {
+    const name = document.getElementById('ob-name').value.trim() || 'Lars';
+    V.name = name; V.loc = document.getElementById('ob-loc').value.trim() || 'Doetinchem centrum';
+    document.getElementById('ob-welcome').textContent = `Welkom, ${name}!`;
+  }
+}
+
+function toggleChip(el) { el.classList.toggle('sel'); }
+
+function startApp() {
+  V.name = document.getElementById('ob-name').value.trim() || 'Lars';
+  V.loc  = document.getElementById('ob-loc').value.trim() || 'Doetinchem centrum';
+  document.getElementById('onboarding').classList.remove('visible');
+  const a = document.getElementById('app');
+  a.style.display = 'flex';
+  a.style.flexDirection = 'column';
+  a.classList.add('visible');
+  renderM(); renderB(); renderG(); renderHome();
+  initHeroAnim();
+  updateBadge();
+  scheduleIncoming(22000); // demo: na ~22s komt er live een nieuwe melding binnen
+}
+
+// ═══════════════════════════
+// NAVIGATION
+// ═══════════════════════════
+function tab(t) {
+  ['home','m','b','k','g','av','w'].forEach(x => {
+    const sc = document.getElementById('sc-'+x);
+    if (sc) sc.style.display = 'none';
+    const nav = document.getElementById('nav-'+x);
+    if (nav) nav.classList.remove('active');
+  });
+  const target = document.getElementById('sc-'+t);
+  if (target) target.style.display = t === 'k' ? 'flex' : 'block';
+  const navEl = document.getElementById('nav-'+t);
+  if (navEl) navEl.classList.add('active');
+  if (t === 'k') { clearRoute(); setTimeout(() => { if (!leafMap) initMap(); else leafMap.invalidateSize(); }, 80); }
+  if (t === 'av') renderAvScreen();
+  if (t === 'w') renderW();
+}
+
+// ═══════════════════════════
+// HOME SCREEN
+// ═══════════════════════════
+function renderHome() {
+  const list = activeMeldingen();
+  const total = HIST.length;
+  const uniq  = new Set(HIST.map(t => t.rid)).size;
+  const preview = list.slice(0, 3);
+
+  document.getElementById('home-content').innerHTML = `
+    <!-- Stats row -->
+    <div class="home-sec-title">Jouw overzicht</div>
+    <div class="qs-row">
+      <div class="qs-card">
+        <div class="qs-n">${list.length}</div>
+        <div class="qs-l">Openstaande meldingen</div>
+      </div>
+      <div class="qs-card">
+        <div class="qs-n">${total}</div>
+        <div class="qs-l">Taken uitgevoerd</div>
+      </div>
+      <div class="qs-card">
+        <div class="qs-n">${uniq}</div>
+        <div class="qs-l">Bewoners geholpen</div>
+      </div>
+    </div>
+
+    <!-- Impact & streak -->
+    ${renderImpact()}
+
+    <!-- Availability status -->
+    <div class="home-avail">
+      <div class="home-avail-info">
+        <strong>${V.online ? 'Je bent beschikbaar' : 'Niet beschikbaar'}</strong>
+        <span>${V.avail.join(' & ')} · <span style="color:var(--green);font-weight:600;cursor:pointer;" onclick="openAv()">Wijzigen</span></span>
+      </div>
+      <div class="toggle${V.online ? '' : ' off'}" onclick="toggleOnline()" style="pointer-events:auto;"></div>
+    </div>
+
+    <!-- Kaart & routes -->
+    <div class="home-map-cta" onclick="tab('k')">
+      <div class="hmc-icon">
+        <svg viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+      </div>
+      <div class="hmc-txt">
+        <strong>Kaart &amp; routes</strong>
+        <span>Bekijk bewoners en plan je route</span>
+      </div>
+      <svg class="hmc-chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+
+    <!-- Installeer-banner (alleen wanneer installeerbaar) -->
+    ${canInstall && !installDismissed ? `
+      <div class="install-banner">
+        <div class="ib-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <div class="ib-txt">
+          <strong>Zet op je beginscherm</strong>
+          <span>Gebruik ADL-Actief als app, ook offline</span>
+        </div>
+        <button class="ib-btn" onclick="doInstall()">Installeer</button>
+        <button class="ib-x" onclick="dismissInstall()" aria-label="Sluiten">&times;</button>
+      </div>
+    ` : ''}
+
+    <!-- Weergave / donkere modus -->
+    <div class="home-setting">
+      <div class="hs-icon">
+        ${document.body.classList.contains('dark')
+          ? '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>'
+          : '<svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>'}
+      </div>
+      <div class="hs-txt">
+        <strong>Donkere modus</strong>
+        <span>${document.body.classList.contains('dark') ? 'Aan — fijn voor avonddiensten' : 'Uit'}</span>
+      </div>
+      <div class="toggle${document.body.classList.contains('dark') ? '' : ' off'}" onclick="toggleTheme()" style="pointer-events:auto;"></div>
+    </div>
+
+    <!-- Active meldingen preview -->
+    <div class="home-sec-title" style="margin-top:4px;">Openstaande meldingen</div>
+    ${preview.length === 0 ? `
+      <div class="home-empty">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <p>Geen openstaande meldingen. Goed gedaan!</p>
+      </div>
+    ` : preview.map(r => `
+      <div class="home-preview ${r.melding.type === 'orange' ? 'oc' : 'gr'}" onclick="tab('m');setTimeout(()=>openM(${r.id}),60);">
+        <div class="hp-name">${r.name} · ${r.kamer}</div>
+        <div class="hp-desc">${r.melding.desc}</div>
+        <div class="hp-meta">geplaatst om ${r.melding.tijd} · ${r.melding.afstand}</div>
+      </div>
+    `).join('')}
+    ${list.length > 3 ? `
+      <button class="btn btn-out btn-full" style="margin-bottom:20px;" onclick="tab('m')">
+        Alle ${list.length} meldingen bekijken
+      </button>
+    ` : list.length > 0 ? `
+      <button class="btn btn-p btn-full" style="margin-bottom:20px;" onclick="tab('m')">
+        Naar meldingen
+      </button>
+    ` : ''}
+
+    <!-- Recente activiteit -->
+    ${HIST.length > 0 ? `
+      <div class="home-sec-title">Recente activiteit</div>
+      ${HIST.slice(0,2).map(t => {
+        const r = RES.find(x => x.id === t.rid);
+        return `
+          <div class="hcard" style="margin-bottom:10px;">
+            <div class="hcard-head">
+              <div class="hcard-name">${r.name}</div>
+              <div class="hcard-status"><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:var(--green);fill:none;stroke-width:2.5;"><polyline points="20 6 9 17 4 12"/></svg>Afgerond</div>
+            </div>
+            <div class="hcard-time">${t.date} om ${t.time}</div>
+            <div class="hcard-desc">${t.task}</div>
+          </div>`;
+      }).join('')}
+      <button class="btn btn-s btn-full" style="margin-bottom:24px;" onclick="tab('g')">Volledige geschiedenis</button>
+    ` : ''}
+  `;
+}
+
+// ═══════════════════════════
+// HERO ANIMATION (framer-motion equivalent)
+// ═══════════════════════════
+const HERO_WORDS = ['beschikbaar', 'zorgzaam', 'present', 'waardevol', 'behulpzaam'];
+let heroIdx = 0;
+let heroTimer = null;
+let heroEls   = [];
+
+function initHeroAnim() {
+  const wrap = document.getElementById('hero-anim-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  heroEls = HERO_WORDS.map((word, i) => {
+    const el = document.createElement('span');
+    el.className = 'anim-word' + (i === 0 ? ' entering' : '');
+    el.textContent = word;
+    wrap.appendChild(el);
+    return el;
+  });
+  clearInterval(heroTimer);
+  heroTimer = setInterval(rotateHeroWord, 2200);
+}
+
+function rotateHeroWord() {
+  const prev = heroIdx;
+  heroEls[prev].classList.remove('entering');
+  heroEls[prev].classList.add('exiting');
+  heroIdx = (heroIdx + 1) % HERO_WORDS.length;
+  heroEls[heroIdx].classList.add('entering');
+  setTimeout(() => heroEls[prev].classList.remove('exiting'), 380);
+}
+
+// ═══════════════════════════
+// TAB 1 – MELDINGEN
+// ═══════════════════════════
+function renderM() {
+  const list = activeMeldingen();
+  document.getElementById('sc-m').innerHTML = `
+    <div class="ph">
+      <div class="ph-row">
+        <div><h1>ADL-Actief</h1><p>Vrijwilliger ${V.name} · ${V.loc}</p></div>
+        <button class="ph-action" onclick="openAv()" title="Beschikbaarheid">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="status-bar">
+      <div class="sb-info">
+        <div class="sb-dot ${V.online?'on':'off'}"></div>
+        <div>
+          <div class="sb-label">${V.online ? 'Je bent beschikbaar' : 'Je bent niet beschikbaar'}</div>
+          <div class="sb-sub">${V.avail.join(' & ')}</div>
+        </div>
+      </div>
+      <div class="toggle${V.online?'':' off'}" onclick="toggleOnline()"></div>
+    </div>
+    <div class="sec-head">
+      <h2>Openstaande meldingen</h2>
+      ${list.length ? `<div class="sec-count">${list.length}</div>` : ''}
+    </div>
+    ${list.length === 0 ? `
+      <div class="empty">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <h3>Geen meldingen</h3>
+        <p>Er zijn nu geen openstaande meldingen. Zodra er iets is, laten we je weten.</p>
+      </div>
+    ` : list.map(meldCard).join('')}
+  `;
+  updateBadge();
+}
+
+function meldCard(r) {
+  const isO = r.melding.type === 'orange';
+  return `
+    <div class="card ${isO?'orange-card':'green-card'}" onclick="openM(${r.id})">
+      <div class="card-head">
+        <div class="ci ${isO?'o':'g'}">
+          ${isO
+            ? '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+            : '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>'}
+        </div>
+        <div style="flex:1">
+          <div class="ci-name">${r.name} – ${r.kamer}</div>
+          <div class="ci-desc">${r.melding.desc}</div>
+        </div>
+      </div>
+      <div class="card-meta">
+        <div class="meta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>geplaatst om ${r.melding.tijd}</div>
+        <div class="meta"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>${r.melding.afstand}</div>
+      </div>
+      <div class="card-acts" onclick="event.stopPropagation()">
+        <button class="btn btn-p" style="flex:1" onclick="doAccept(${r.id})">Accepteren</button>
+        <button class="btn btn-s" onclick="doSkip(${r.id})">Overslaan</button>
+      </div>
+    </div>`;
+}
+
+function toggleOnline() {
+  V.online = !V.online;
+  renderM();
+  toast(V.online ? 'Je bent nu beschikbaar voor meldingen' : 'Je staat nu op niet beschikbaar');
+}
+
+function doAccept(id) { accepted.add(id); openM(id); }
+
+function doSkip(id) {
+  skipped.add(id); renderM(); renderHome();
+  if (resMarkers[id]) refreshResMarker(id);
+  toast('Melding overgeslagen — geen consequenties');
+}
+
+function openM(id) {
+  const r = RES.find(x => x.id === id);
+  const m = r.melding;
+  const isO = r.melding.type === 'orange';
+  const isAcc = accepted.has(id);
+  document.getElementById('ds-m-title').textContent = r.name;
+  document.getElementById('ds-m-sub').textContent   = r.kamer;
+  document.getElementById('ds-m-body').innerHTML = `
+    <div class="dbadge ${isO?'o':'g'}">
+      ${isO
+        ? '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Aandacht gewenst'
+        : '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Praktische hulp'}
+    </div>
+    <div class="ds-sec">
+      <div class="ds-sec-label">Wat is er aan de hand</div>
+      <p>${m.gemeten}</p>
+    </div>
+    <div class="ds-sec">
+      <div class="ds-sec-label">Wat jij kunt doen</div>
+      <p>${m.taak}</p>
+      <div class="tip-box"><p><strong>Persoonlijke tip:</strong> ${r.tips}</p></div>
+    </div>
+    <div class="card-meta" style="padding:0;margin-bottom:16px;">
+      <div class="meta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>geplaatst om ${m.tijd}</div>
+      <div class="meta"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>${m.afstand} van jou vandaan</div>
+    </div>
+    ${!isAcc ? `
+      <button class="btn btn-p btn-full" style="margin-bottom:10px;" onclick="confirmAccept(${id})">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:white;fill:none;stroke-width:2.5;"><polyline points="20 6 9 17 4 12"/></svg>
+        Ik ga erheen
+      </button>
+    ` : `
+      <div class="accepted-banner">
+        <strong>Je bent op weg!</strong>
+        <span>Acceptatie geregistreerd · geplaatst om ${m.tijd}</span>
+      </div>
+      <button class="btn btn-p btn-full" style="margin-bottom:10px;" onclick="doRoute(${id})">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:white;fill:none;stroke-width:2;"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/></svg>
+        Route tonen
+      </button>
+      <div class="ds-sec">
+        <div class="ds-sec-label">Taak afronden</div>
+        <textarea class="form-textarea" id="tnote-${id}" rows="2" placeholder="Optioneel: korte notitie (max 2 zinnen)…" style="margin-bottom:10px;"></textarea>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-p" style="flex:1;" onclick="completeTask(${id})">Taak afgerond</button>
+          <button class="btn btn-o" style="flex:1;" onclick="forwardTask(${id})">Toch hulp verzorgende</button>
+        </div>
+      </div>
+    `}
+    <button class="btn btn-out btn-full" style="margin-top:8px;" onclick="returnTask(${id})">Terugsturen naar zorgorganisatie</button>
+  `;
+  document.getElementById('ds-m').classList.add('open');
+}
+
+function confirmAccept(id) {
+  accepted.add(id); openM(id);
+  toast('Goed bezig! Acceptatie geregistreerd.', true);
+}
+function doRoute(id) {
+  closeDs('ds-m');
+  tab('k');
+  setTimeout(() => drawRouteTo(id), 380); // wacht tot kaart geïnitialiseerd is
+}
+function completeTask(id) {
+  const r = RES.find(x => x.id === id);
+  done.add(id); accepted.delete(id); closeDs('ds-m'); renderM(); renderHome();
+  if (resMarkers[id]) refreshResMarker(id);
+  celebrate(r ? `Taak voor ${r.name} afgerond` : 'Taak afgerond');
+}
+function forwardTask(id) {
+  done.add(id); accepted.delete(id); closeDs('ds-m'); renderM(); renderHome();
+  if (resMarkers[id]) refreshResMarker(id);
+  toast('Melding doorgezet naar de verzorgende');
+}
+function returnTask(id) {
+  done.add(id); accepted.delete(id); closeDs('ds-m'); renderM(); renderHome();
+  if (resMarkers[id]) refreshResMarker(id);
+  toast('Melding teruggestuurd naar de zorgorganisatie');
+}
+
+// ═══════════════════════════
+// TAB 2 – BEWONERS
+// ═══════════════════════════
+function renderB() {
+  document.getElementById('sc-b').innerHTML = `
+    <div class="ph"><h1>Bewoners</h1><p>Jouw bewonersoverzicht</p></div>
+    ${RES.map(r => `
+      <div class="rc" onclick="openB(${r.id})">
+        <div class="ava" style="background:${r.col};">${r.init}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="rc-name">${r.name} <span style="font-size:12.5px;color:var(--g400);font-weight:400;">· ${r.kamer}</span></div>
+          <div class="rc-desc">${r.bio}</div>
+          ${r.eerder ? '<div class="tag"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Eerder geholpen</div>' : ''}
+        </div>
+        <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--g300);fill:none;stroke-width:2.5;flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    `).join('')}
+  `;
+}
+
+function openB(id) {
+  const r = RES.find(x => x.id === id);
+  const myTasks = HIST.filter(t => t.rid === id);
+  const fn = r.name.split(' ').slice(1).join(' ') || r.name;
+  document.getElementById('ds-b-title').textContent = r.name;
+  document.getElementById('ds-b-sub').textContent   = r.kamer;
+  document.getElementById('ds-b-body').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
+      <div class="ava ava-lg" style="background:${r.col};">${r.init}</div>
+      <div>
+        <div style="font-size:18px;font-weight:800;letter-spacing:-.3px;">${r.name}</div>
+        <div style="font-size:13px;color:var(--g400);margin-top:2px;">${r.kamer}</div>
+        ${r.eerder ? '<div class="tag" style="margin-top:7px;"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Eerder geholpen</div>' : ''}
+      </div>
+    </div>
+    <div class="ds-sec"><div class="ds-sec-label">Over ${fn}</div><p>${r.bio}</p></div>
+    <div class="ds-sec"><div class="ds-sec-label">Tips voor benadering</div><div class="tip-box"><p>${r.tips}</p></div></div>
+    ${myTasks.length ? `
+      <div class="ds-sec">
+        <div class="ds-sec-label">Jouw eerdere bezoeken</div>
+        ${myTasks.map(t => `
+          <div style="padding:10px 0;border-bottom:1px solid var(--g100);">
+            <div style="font-size:12.5px;color:var(--g400);">${t.date} om ${t.time}</div>
+            <div style="font-size:14px;color:var(--g800);margin-top:3px;">${t.task}</div>
+            ${t.note ? `<div style="font-size:13px;color:var(--g600);font-style:italic;margin-top:3px;">"${t.note}"</div>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    ` : ''}
+    <button class="btn btn-p btn-full" onclick="offerContact(${id})">
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:white;fill:none;stroke-width:2;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.9 13.68 19.79 19.79 0 01.87 5.07 2 2 0 012.85 3h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.09 10.91a16 16 0 006 6l.98-.98a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 18.92z"/></svg>
+      Vrijwillig contact aanbieden
+    </button>
+  `;
+  document.getElementById('ds-b').classList.add('open');
+}
+
+function offerContact(id) {
+  const r = RES.find(x => x.id === id);
+  const fn = r.name.split(' ').slice(1).join(' ') || r.name;
+  toast(`Verzoek verstuurd voor bezoek aan ${fn}`, true);
+  closeDs('ds-b');
+}
+
+// ═══════════════════════════
+// TAB 3 – KAART
+// ═══════════════════════════
+// ── Geo-helpers ──
+function haversine(a, b) {
+  const R = 6371, toR = x => x * Math.PI / 180;
+  const dLat = toR(b.lat - a.lat), dLng = toR(b.lng - a.lng);
+  const s = Math.sin(dLat/2)**2 + Math.cos(toR(a.lat)) * Math.cos(toR(b.lat)) * Math.sin(dLng/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+function fmtKm(km) {
+  return km < 1 ? Math.round(km * 1000) + ' m' : km.toFixed(1).replace('.', ',') + ' km';
+}
+function walkMin(km) { return Math.max(1, Math.round(km / 4.8 * 60)); } // ~4,8 km/u wandeltempo
+// Vloeiende boog tussen 2 punten (fallback wanneer routeservice onbereikbaar is)
+function curveBetween(a, b) {
+  const dx = b.lat - a.lat, dy = b.lng - a.lng;
+  const cx = (a.lat + b.lat) / 2 - dy * 0.16;
+  const cy = (a.lng + b.lng) / 2 + dx * 0.16;
+  const pts = [];
+  for (let t = 0; t <= 1.0001; t += 0.04) {
+    const u = 1 - t;
+    pts.push([u*u*a.lat + 2*u*t*cx + t*t*b.lat, u*u*a.lng + 2*u*t*cy + t*t*b.lng]);
+  }
+  return pts;
+}
+
+function initMap() {
+  if (leafMap) return;
+
+  leafMap = L.map('map', { zoomControl:false, attributionControl:false })
+    .setView([51.9712, 6.3000], 14);
+
+  L.control.zoom({ position:'topleft' }).addTo(leafMap);
+
+  // CARTO Voyager (licht) / Dark Matter (donker) — schonere, modernere kaartstijl
+  const isDark = document.body.classList.contains('dark');
+  tileLayerRef = L.tileLayer(isDark
+    ? 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    maxZoom:20, subdomains:'abcd'
+  }).addTo(leafMap);
+
+  L.control.attribution({ prefix:'© <a href="https://openstreetmap.org">OpenStreetMap</a> · © <a href="https://carto.com/attributions">CARTO</a>', position:'bottomright' })
+    .addTo(leafMap);
+
+  // Vrijwilliger (jouw locatie) met pulserende GPS-ring
+  L.marker([VOLUNTEER.lat, VOLUNTEER.lng], {
+    icon: L.divIcon({ html:`<div class="mk-vol"></div>`, iconSize:[24,24], iconAnchor:[12,12], className:'' }),
+    zIndexOffset: 400
+  }).addTo(leafMap)
+    .bindPopup(`<div class="pop-name">Jouw locatie</div><div class="pop-kamer">${V.name} · ${V.loc}</div>`);
+
+  // Markenheem — Kruisbergseweg 4
+  L.marker([MARKENHEEM.lat, MARKENHEEM.lng], {
+    icon: L.divIcon({
+      html:`<div style="width:38px;height:38px;background:linear-gradient(135deg,#24AA5A,#0D3D22);border-radius:12px;border:2.5px solid white;box-shadow:0 4px 16px rgba(26,122,69,.45);display:flex;align-items:center;justify-content:center;font-size:19px;">🏠</div>`,
+      iconSize:[38,38], iconAnchor:[19,19], className:''
+    })
+  }).addTo(leafMap)
+    .bindPopup(`<div class="pop-name">${MARKENHEEM.label}</div><div class="pop-kamer">${MARKENHEEM.addr}</div>`);
+
+  // Bewoners
+  RES.forEach(r => {
+    const mk = L.marker([r.lat, r.lng], { icon: resIcon(r) }).bindPopup(resPopupHtml(r));
+    mk.addTo(leafMap);
+    resMarkers[r.id] = mk;
+  });
+
+  // Standaard alles netjes in beeld kaderen
+  const pts = RES.map(r => [r.lat, r.lng]);
+  pts.push([VOLUNTEER.lat, VOLUNTEER.lng], [MARKENHEEM.lat, MARKENHEEM.lng]);
+  leafMap.fitBounds(L.latLngBounds(pts), { padding:[50,50], animate:false });
+}
+
+// Bewoner-marker: icoon + popup (gedeeld door initMap en refresh)
+function resIcon(r) {
+  const active = r.melding && !skipped.has(r.id) && !done.has(r.id);
+  const col = active ? (r.melding.type === 'orange' ? '#E5782A' : '#1A7A45') : '#B8BDB8';
+  const shadow = active ? (r.melding.type === 'orange' ? 'rgba(229,120,42,.42)' : 'rgba(26,122,69,.42)') : 'rgba(0,0,0,.14)';
+  const ring = active && r.melding.type === 'orange' ? ' mk-ring' : '';
+  return L.divIcon({
+    html:`<div class="mk-res${ring}" style="background:${col};box-shadow:0 3px 12px ${shadow};">${r.init}</div>`,
+    iconSize:[34,34], iconAnchor:[17,17], className:''
+  });
+}
+function resPopupHtml(r) {
+  const active = r.melding && !skipped.has(r.id) && !done.has(r.id);
+  const routeBtn = `<button class="pop-btn pop-btn-2" onclick="leafMap.closePopup();drawRouteTo(${r.id});"><svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>Route hierheen</button>`;
+  const meldBtn = active
+    ? `<button class="pop-btn" onclick="leafMap.closePopup();tab('m');setTimeout(()=>openM(${r.id}),80);">Bekijk melding</button>`
+    : '';
+  return `<div class="pop-name">${r.name}</div>`
+    + `<div class="pop-kamer">${r.straat || r.kamer} · ${fmtKm(r.distKm)}</div>`
+    + (active
+        ? `<div class="pop-desc">${r.melding.desc}</div>`
+        : `<div class="pop-desc" style="color:var(--g400);">Geen actieve melding</div>`)
+    + meldBtn + routeBtn;
+}
+function refreshResMarker(id) {
+  const r = RES.find(x => x.id === id), mk = resMarkers[id];
+  if (!r || !mk) return;
+  mk.setIcon(resIcon(r));
+  mk.setPopupContent(resPopupHtml(r));
+}
+
+function mapFilter(mode, btn) {
+  document.querySelectorAll('.map-filters .filt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  let shown = 0;
+  RES.forEach(r => {
+    const mk = resMarkers[r.id];
+    if (!mk) return;
+    const active = r.melding && !skipped.has(r.id) && !done.has(r.id);
+    let show = true;
+    if (mode === 'melding') show = !!active;
+    if (mode === 'nearby')  show = r.distKm < NEARBY_KM;
+    if (show) { mk.addTo(leafMap); shown++; } else { leafMap.removeLayer(mk); }
+  });
+  const sub = document.getElementById('map-top-sub');
+  if (sub) sub.textContent =
+    mode === 'melding' ? `${shown} bewoners met een melding`
+    : mode === 'nearby' ? `${shown} bewoners binnen ${fmtKm(NEARBY_KM)}`
+    : 'Bewoners in jouw omgeving';
+}
+
+function mapRecenter() {
+  if (!leafMap) return;
+  clearRoute();
+  const pts = RES.map(r => [r.lat, r.lng]);
+  pts.push([VOLUNTEER.lat, VOLUNTEER.lng], [MARKENHEEM.lat, MARKENHEEM.lng]);
+  leafMap.fitBounds(L.latLngBounds(pts), { padding:[55,55], animate:false });
+}
+function mapLocate() {
+  if (!leafMap) return;
+  leafMap.setView([VOLUNTEER.lat, VOLUNTEER.lng], 15, { animate:false });
+}
+
+// ── Routebepaling ──
+function clearRoute() {
+  routeReq++; // annuleert lopende async-tekening
+  if (routeLayer) { leafMap.removeLayer(routeLayer); routeLayer = null; }
+  if (destMarker) { leafMap.removeLayer(destMarker); destMarker = null; }
+  const p = document.getElementById('route-panel');
+  if (p) p.classList.remove('show');
+}
+
+function drawRouteTo(id) {
+  const r = RES.find(x => x.id === id);
+  if (!r) return;
+  if (!leafMap) initMap();
+  setTimeout(() => leafMap.invalidateSize(), 0);
+  clearRoute();
+  const my = ++routeReq;
+
+  // Paneel openen in laad-stand
+  document.getElementById('rp-name').textContent = r.name;
+  document.getElementById('rp-addr').innerHTML =
+    `<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>${r.straat || r.kamer}`;
+  document.getElementById('rp-content').innerHTML =
+    `<div class="rp-loading"><div class="rp-spin"></div>Beste route berekenen…</div>`;
+  document.getElementById('route-panel').classList.add('show');
+
+  // Pulserende bestemmingsmarker
+  destMarker = L.marker([r.lat, r.lng], {
+    icon: L.divIcon({ html:`<div class="mk-dest"></div>`, iconSize:[14,14], iconAnchor:[7,7], className:'' }),
+    zIndexOffset: 500
+  }).addTo(leafMap);
+
+  fetchRoute(VOLUNTEER, r).then(res => {
+    if (my !== routeReq) return; // er is intussen een nieuwe route gestart
+    fillRoutePanel(r, res.distKm, walkMin(res.distKm), res.real); // eerst paneel vullen (volle hoogte)
+    paintRoute(res.geo);                                          // daarna kaderen met juiste hoogte
+  });
+}
+
+// OSRM-route ophalen (echte wegen) met curve-fallback
+function fetchRoute(from, to) {
+  const url = `https://router.project-osrm.org/route/v1/driving/${from.lng},${from.lat};${to.lng},${to.lat}?overview=full&geometries=geojson`;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 6000);
+  return fetch(url, { signal: ctrl.signal })
+    .then(res => res.json())
+    .then(data => {
+      clearTimeout(timer);
+      const route = data && data.routes && data.routes[0];
+      if (!route) throw new Error('geen route');
+      return {
+        geo: route.geometry.coordinates.map(c => [c[1], c[0]]),
+        distKm: route.distance / 1000,
+        real: true
+      };
+    })
+    .catch(() => {
+      clearTimeout(timer);
+      return { geo: curveBetween(from, to), distKm: haversine(from, to), real: false };
+    });
+}
+
+function paintRoute(geo) {
+  const casing = L.polyline(geo, { color:'#FFFFFF', weight:9, opacity:.95, lineJoin:'round', lineCap:'round' });
+  const line   = L.polyline(geo, { color:'#1A7A45', weight:5, opacity:.95, lineJoin:'round', lineCap:'round' });
+  routeLayer = L.layerGroup([casing, line]).addTo(leafMap);
+
+  // Route kaderen in de zichtbare band BOVEN het route-paneel
+  const panel = document.getElementById('route-panel');
+  const ph = panel ? panel.offsetHeight : 0;
+  const b = line.getBounds();
+  let z = leafMap.getBoundsZoom(b, false, L.point(80, ph + 90));
+  z = Math.min(z, 16);
+  // Centrum naar beneden verschuiven (in pixels), zodat de route omhoog schuift
+  const cp = leafMap.project(b.getCenter(), z).add([0, ph / 2]);
+  leafMap.setView(leafMap.unproject(cp, z), z, { animate:false });
+}
+
+function fillRoutePanel(r, distKm, mins, real) {
+  document.getElementById('rp-content').innerHTML = `
+    <div class="rp-stats">
+      <div class="rp-stat"><div class="rp-stat-n">${fmtKm(distKm)}</div><div class="rp-stat-l">afstand</div></div>
+      <div class="rp-stat"><div class="rp-stat-n">${mins} min</div><div class="rp-stat-l">lopen</div></div>
+      <div class="rp-stat"><div class="rp-stat-n">🚶</div><div class="rp-stat-l">te voet</div></div>
+    </div>
+    <button class="rp-go" onclick="openExternalNav(${r.id})">
+      <svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+      Navigatie starten
+    </button>
+    <div style="text-align:center;margin-top:8px;">
+      <span class="rp-mode-tag">${real ? 'Route via wegennet' : 'Berekend op afstand'}</span>
+    </div>
+  `;
+}
+
+function openExternalNav(id) {
+  const r = RES.find(x => x.id === id);
+  if (!r) return;
+  const url = `https://www.google.com/maps/dir/?api=1&origin=${VOLUNTEER.lat},${VOLUNTEER.lng}&destination=${r.lat},${r.lng}&travelmode=walking`;
+  window.open(url, '_blank', 'noopener');
+}
+
+// ═══════════════════════════
+// TAB 4 – GESCHIEDENIS
+// ═══════════════════════════
+function renderG() {
+  const total = HIST.length;
+  const uniq  = new Set(HIST.map(t => t.rid)).size;
+  const hrs   = (total * 20 / 60).toFixed(1).replace('.', ',');
+  const groups = {};
+  HIST.forEach(t => { (groups[t.date] = groups[t.date] || []).push(t); });
+
+  document.getElementById('sc-g').innerHTML = `
+    <div class="prof-bar">
+      <div class="prof-ava">${V.name[0]}</div>
+      <div class="prof-name">${V.name}</div>
+      <div class="prof-sub">${V.loc} · ${V.avail.join(' & ')}</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-n">${total}</div><div class="stat-l">Taken uitgevoerd</div></div>
+      <div class="stat"><div class="stat-n">${uniq}</div><div class="stat-l">Bewoners geholpen</div></div>
+      <div class="stat"><div class="stat-n">${hrs}u</div><div class="stat-l">Bespaard voor zorg</div></div>
+    </div>
+    <div class="filter-row">
+      <button class="filt active" onclick="hFilt(this)">Alles</button>
+      <button class="filt" onclick="hFilt(this)">Deze week</button>
+      <button class="filt" onclick="hFilt(this)">Deze maand</button>
+    </div>
+    ${Object.entries(groups).map(([date, tasks]) => `
+      <div class="day-lbl">${date}</div>
+      ${tasks.map(t => {
+        const r = RES.find(x => x.id === t.rid);
+        return `
+          <div class="hcard">
+            <div class="hcard-head">
+              <div class="hcard-name">${r.name}</div>
+              <div class="hcard-status"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Afgerond</div>
+            </div>
+            <div class="hcard-time">${r.kamer} · om ${t.time}</div>
+            <div class="hcard-desc">${t.task}</div>
+            ${t.note ? `<div class="hcard-note">"${t.note}"</div>` : ''}
+          </div>`;
+      }).join('')}
+    `).join('')}
+    <div class="mot"><p><strong>Goed bezig, ${V.name}!</strong>Jij maakt het verschil voor mensen die dat nodig hebben.</p></div>
+    <div style="height:12px;"></div>
+  `;
+}
+
+function hFilt(btn) {
+  document.querySelectorAll('.filter-row .filt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ═══════════════════════════
+// AVAILABILITY PAGE
+// ═══════════════════════════
+const DAYS = ['Ma','Di','Wo','Do','Vr','Za','Zo'];
+const SLOTS = ['Ochtend','Middag','Avond'];
+const DAYNAMES = { Ma:'Maandag', Di:'Dinsdag', Wo:'Woensdag', Do:'Donderdag', Vr:'Vrijdag', Za:'Zaterdag', Zo:'Zondag' };
+
+function openAv() {
+  document.getElementById('av-body').innerHTML = `
+    <div style="background:var(--green-light);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:16px;border:1px solid rgba(45,125,70,0.15);">
+      <div style="font-size:13px;color:var(--green-dark);line-height:1.5;">Geef aan op welke dagen en dagdelen je beschikbaar bent. Je ontvangt alleen meldingen tijdens jouw beschikbare tijden.</div>
+    </div>
+    ${DAYS.map(day => {
+      const d = AVAIL[day];
+      return `
+        <div class="day-row" id="dayrow-${day}">
+          <div class="day-header">
+            <div>
+              <div class="day-name">${DAYNAMES[day]}</div>
+              ${d.on && d.slots.length ? `<div style="font-size:12px;color:var(--g400);margin-top:2px;">${d.slots.join(' · ')}</div>` : `<div style="font-size:12px;color:var(--g300);margin-top:2px;">${d.on ? 'Kies een dagdeel' : 'Niet beschikbaar'}</div>`}
+            </div>
+            <div class="toggle${d.on?'':' off'}" onclick="toggleDay('${day}')" style="flex-shrink:0;"></div>
+          </div>
+          ${d.on ? `
+            <div class="day-slots" id="slots-${day}">
+              ${SLOTS.map(s => `
+                <div class="slot${d.slots.includes(s)?' active':''}" onclick="toggleSlot('${day}','${s}')">${s}</div>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('')}
+  `;
+  document.getElementById('av-screen').classList.add('open');
+}
+
+function toggleDay(day) {
+  AVAIL[day].on = !AVAIL[day].on;
+  if (!AVAIL[day].on) AVAIL[day].slots = [];
+  refreshDayRow(day);
+}
+
+function toggleSlot(day, slot) {
+  const arr = AVAIL[day].slots;
+  const idx = arr.indexOf(slot);
+  if (idx > -1) arr.splice(idx, 1); else arr.push(slot);
+  refreshDayRow(day);
+}
+
+function refreshDayRow(day) {
+  const d = AVAIL[day];
+  const row = document.getElementById('dayrow-'+day);
+  row.innerHTML = `
+    <div class="day-header">
+      <div>
+        <div class="day-name">${DAYNAMES[day]}</div>
+        ${d.on && d.slots.length ? `<div style="font-size:12px;color:var(--g400);margin-top:2px;">${d.slots.join(' · ')}</div>` : `<div style="font-size:12px;color:var(--g300);margin-top:2px;">${d.on ? 'Kies een dagdeel' : 'Niet beschikbaar'}</div>`}
+      </div>
+      <div class="toggle${d.on?'':' off'}" onclick="toggleDay('${day}')" style="flex-shrink:0;"></div>
+    </div>
+    ${d.on ? `
+      <div class="day-slots" id="slots-${day}">
+        ${SLOTS.map(s => `<div class="slot${d.slots.includes(s)?' active':''}" onclick="toggleSlot('${day}','${s}')">${s}</div>`).join('')}
+      </div>
+    ` : ''}
+  `;
+}
+
+function saveAvailability() {
+  const activeDays = DAYS.filter(d => AVAIL[d].on && AVAIL[d].slots.length > 0);
+  const summary = activeDays.map(d => `${d} (${AVAIL[d].slots.join('/')})`).join(', ');
+  closeAv();
+  toast('Beschikbaarheid opgeslagen', true);
+  renderM();
+}
+
+function closeAv() {
+  document.getElementById('av-screen').classList.remove('open');
+}
+
+// ═══════════════════════════
+// UTILITIES
+// ═══════════════════════════
+function closeDs(id) {
+  document.getElementById(id).classList.remove('open');
+  renderM();
+}
+
+function updateBadge() {
+  const n = activeMeldingen().length;
+  const b = document.getElementById('nbadge');
+  if (b) { b.textContent = n; b.style.display = n ? 'flex' : 'none'; }
+}
+
+// ═══════════════════════════
+// TAB 5 – BESCHIKBAARHEID
+// ═══════════════════════════
+function renderAvScreen() {
+  const activeCount = DAYS.filter(d => AVAIL[d].on && AVAIL[d].slots.length).length;
+  const totalSlots  = DAYS.reduce((s,d) => s + AVAIL[d].slots.length, 0);
+  document.getElementById('sc-av').innerHTML = `
+    <div class="ph">
+      <div class="ph-row">
+        <div><h1>Beschikbaarheid</h1><p>Jouw beschikbare tijden</p></div>
+      </div>
+    </div>
+
+    <!-- Samenvatting kaart -->
+    <div style="margin:14px 16px 6px;background:linear-gradient(135deg,var(--green-light) 0%,#d6f0e2 100%);border-radius:var(--r-lg);padding:16px;border:1.5px solid rgba(26,122,69,0.14);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--green-dark);letter-spacing:-.2px;">${activeCount > 0 ? activeCount+' dag'+(activeCount!==1?'en':'')+' ingesteld' : 'Nog geen dagen ingesteld'}</div>
+          <div style="font-size:12px;color:var(--green-dark);opacity:.65;margin-top:2px;">${totalSlots} dagdeel${totalSlots!==1?'en':''} beschikbaar</div>
+        </div>
+        <div class="toggle${V.online?'':' off'}" onclick="toggleOnline();renderAvScreen();" style="flex-shrink:0;"></div>
+      </div>
+      <!-- Dag-chips overzicht -->
+      <div style="display:flex;gap:5px;flex-wrap:wrap;">
+        ${DAYS.map(day => {
+          const d = AVAIL[day];
+          const active = d.on && d.slots.length > 0;
+          return `<div style="padding:5px 10px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:.1px;${active?'background:var(--green);color:white;':'background:rgba(0,0,0,0.06);color:var(--g400);'}">${day}</div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- Info tekst -->
+    <div style="padding:0 16px 10px;">
+      <div style="font-size:12.5px;color:var(--g400);line-height:1.55;padding:10px 0;">
+        Zet de schakelaar aan per dag en kies wanneer je beschikbaar bent. Je ontvangt alleen meldingen op jouw ingestelde tijden.
+      </div>
+    </div>
+
+    <!-- Dag-rijen -->
+    <div style="padding:0 16px;">
+      ${DAYS.map(day => avDayRow(day)).join('')}
+    </div>
+
+    <!-- Opslaan -->
+    <div style="padding:6px 16px 44px;">
+      <button class="btn btn-p btn-full" onclick="saveAvScreen()">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:white;fill:none;stroke-width:2.5;"><polyline points="20 6 9 17 4 12"/></svg>
+        Beschikbaarheid opslaan
+      </button>
+    </div>
+  `;
+}
+
+function avDayRow(day) {
+  const d = AVAIL[day];
+  return `<div class="day-row" id="av-dr-${day}" style="margin-bottom:10px;">
+    <div class="day-header">
+      <div>
+        <div class="day-name">${DAYNAMES[day]}</div>
+        ${d.on && d.slots.length
+          ? `<div style="font-size:12px;color:var(--g400);margin-top:2px;">${d.slots.join(' · ')}</div>`
+          : `<div style="font-size:12px;color:var(--g300);margin-top:2px;">${d.on ? 'Kies een dagdeel' : 'Niet beschikbaar'}</div>`}
+      </div>
+      <div class="toggle${d.on?'':' off'}" onclick="avToggleDay('${day}')" style="flex-shrink:0;"></div>
+    </div>
+    ${d.on ? `<div class="day-slots">${SLOTS.map(s=>`<div class="slot${d.slots.includes(s)?' active':''}" onclick="avToggleSlot('${day}','${s}')">${s}</div>`).join('')}</div>` : ''}
+  </div>`;
+}
+
+function avToggleDay(day) {
+  AVAIL[day].on = !AVAIL[day].on;
+  if (!AVAIL[day].on) AVAIL[day].slots = [];
+  const el = document.getElementById('av-dr-'+day);
+  if (el) el.outerHTML = avDayRow(day);
+}
+
+function avToggleSlot(day, slot) {
+  const arr = AVAIL[day].slots;
+  const i = arr.indexOf(slot);
+  if (i > -1) arr.splice(i, 1); else arr.push(slot);
+  const el = document.getElementById('av-dr-'+day);
+  if (el) el.outerHTML = avDayRow(day);
+}
+
+function saveAvScreen() {
+  toast('Beschikbaarheid opgeslagen', true);
+  renderM(); renderHome();
+}
+
+function renderW() {
+  document.getElementById('sc-w').innerHTML = `
+    <div style="background:linear-gradient(155deg,#061811 0%,#0C3920 20%,#155535 50%,#1A7A45 78%,#22AA5A 100%);padding:32px 20px 28px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-30px;right:-30px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,255,255,0.07) 0%,transparent 70%);border-radius:50%;pointer-events:none;"></div>
+      <div style="position:absolute;bottom:-50px;left:30px;width:140px;height:140px;background:radial-gradient(circle,rgba(255,255,255,0.04) 0%,transparent 70%);border-radius:50%;pointer-events:none;"></div>
+      <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.13);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 11px;margin-bottom:16px;backdrop-filter:blur(8px);">
+        <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:rgba(255,255,255,0.8);fill:none;stroke-width:2;"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        <span style="font-size:11.5px;font-weight:600;color:rgba(255,255,255,0.8);letter-spacing:.1px;">ADL-Actief · Markenheem</span>
+      </div>
+      <div style="font-size:25px;font-weight:900;color:white;letter-spacing:-.5px;margin-bottom:6px;position:relative;z-index:1;">Regels &amp; Wetgeving</div>
+      <div style="font-size:13.5px;color:rgba(255,255,255,0.68);line-height:1.55;position:relative;z-index:1;">Richtlijnen voor vrijwilligers bij Markenheem</div>
+    </div>
+
+    <div style="padding:16px 16px 90px;">
+
+      <div style="background:white;border-radius:var(--r-lg);padding:14px 15px;margin-bottom:20px;box-shadow:var(--shadow-xs);border:1.5px solid var(--g100);display:flex;align-items:flex-start;gap:11px;">
+        <div style="width:34px;height:34px;background:#EEF8F3;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--green);fill:none;stroke-width:2;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13.5px;font-weight:700;color:var(--g800);margin-bottom:3px;">Over deze pagina</div>
+          <div style="font-size:12.5px;color:var(--g400);line-height:1.55;">Deze pagina beschrijft de regels en verantwoordelijkheden voor vrijwilligers. De inhoud wordt binnenkort aangevuld.</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="width:32px;height:32px;background:var(--green-light);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--green);fill:none;stroke-width:2.5;"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div>
+          <div style="font-size:16.5px;font-weight:800;color:var(--g800);letter-spacing:-.3px;">Wat je wél mag doen</div>
+          <div style="font-size:12px;color:var(--g400);margin-top:1px;">Toegestane handelingen als vrijwilliger</div>
+        </div>
+      </div>
+
+      ${['Sociaal contact &amp; gezelligheid','Praktische hulp (niet-medisch)','Signaleren &amp; doorgeven','Begeleiding bij activiteiten'].map(title => `
+        <div style="background:white;border-radius:var(--r-lg);padding:14px 15px;margin-bottom:9px;box-shadow:var(--shadow-xs);border:1.5px solid #E8F5EE;border-left:4px solid var(--green);">
+          <div style="font-size:13.5px;font-weight:700;color:var(--g800);margin-bottom:5px;">${title}</div>
+          <p style="font-size:12.5px;color:var(--g300);font-style:italic;margin:0 0 8px;line-height:1.5;">Tekst wordt nog toegevoegd...</p>
+          <div style="display:inline-flex;align-items:center;gap:4px;background:var(--green-light);padding:3px 9px;border-radius:20px;">
+            <svg viewBox="0 0 24 24" style="width:9px;height:9px;stroke:var(--green);fill:none;stroke-width:3;"><polyline points="20 6 9 17 4 12"/></svg>
+            <span style="font-size:11px;font-weight:700;color:var(--green);">Toegestaan</span>
+          </div>
+        </div>
+      `).join('')}
+
+      <div style="display:flex;align-items:center;gap:10px;margin:22px 0 12px;">
+        <div style="width:32px;height:32px;background:var(--orange-light);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--orange);fill:none;stroke-width:2.5;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <div>
+          <div style="font-size:16.5px;font-weight:800;color:var(--g800);letter-spacing:-.3px;">Wat je niet mag doen</div>
+          <div style="font-size:12px;color:var(--g400);margin-top:1px;">Niet-toegestane handelingen als vrijwilliger</div>
+        </div>
+      </div>
+
+      ${['Medische handelingen','Medicijnen beheren','Persoonlijke verzorging'].map(title => `
+        <div style="background:white;border-radius:var(--r-lg);padding:14px 15px;margin-bottom:9px;box-shadow:var(--shadow-xs);border:1.5px solid #FEF0E4;border-left:4px solid var(--orange);">
+          <div style="font-size:13.5px;font-weight:700;color:var(--g800);margin-bottom:5px;">${title}</div>
+          <p style="font-size:12.5px;color:var(--g300);font-style:italic;margin:0 0 8px;line-height:1.5;">Tekst wordt nog toegevoegd...</p>
+          <div style="display:inline-flex;align-items:center;gap:4px;background:var(--orange-light);padding:3px 9px;border-radius:20px;">
+            <svg viewBox="0 0 24 24" style="width:9px;height:9px;stroke:var(--orange);fill:none;stroke-width:3;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <span style="font-size:11px;font-weight:700;color:var(--orange);">Niet toegestaan</span>
+          </div>
+        </div>
+      `).join('')}
+
+      <div style="margin-top:24px;background:linear-gradient(135deg,#0C3920 0%,#1A7A45 50%,#24AA5A 100%);border-radius:var(--r-lg);padding:20px;text-align:center;box-shadow:0 8px 24px rgba(26,122,69,0.22);">
+        <div style="font-size:15.5px;font-weight:800;color:white;letter-spacing:-.3px;margin-bottom:5px;">Vragen over de regels?</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.76);line-height:1.55;margin-bottom:14px;">Neem contact op met de coördinator van Markenheem voor verdere toelichting.</div>
+        <button class="btn" style="background:rgba(255,255,255,0.95);color:var(--green-dark);font-weight:700;font-size:13.5px;padding:10px 22px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,0.14);" onclick="toast('Contact opnemen — functie volgt binnenkort', false)">Contact opnemen</button>
+      </div>
+
+    </div>
+  `;
+}
+
+// ═══════════════════════════
+// DONKERE MODUS
+// ═══════════════════════════
+function applyTheme(t) {
+  const dark = t === 'dark';
+  document.body.classList.toggle('dark', dark);
+  const meta = document.getElementById('theme-color-meta');
+  if (meta) meta.setAttribute('content', dark ? '#0F1714' : '#1A7A45');
+  try { localStorage.setItem('adl-theme', t); } catch (e) {}
+  if (leafMap && tileLayerRef) {
+    tileLayerRef.setUrl(dark
+      ? 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png');
+  }
+}
+function toggleTheme() {
+  applyTheme(document.body.classList.contains('dark') ? 'light' : 'dark');
+  renderHome();
+}
+function initTheme() {
+  let t = 'light';
+  try { t = localStorage.getItem('adl-theme') || 'light'; } catch (e) {}
+  applyTheme(t);
+}
+
+// ═══════════════════════════
+// IMPACT & STREAK
+// ═══════════════════════════
+function renderImpact() {
+  const tasksTotal = HIST.length + done.size;
+  const helped = new Set([...HIST.map(t => t.rid), ...done]).size;
+  const hrs = (tasksTotal * 20 / 60).toFixed(1).replace('.', ',');
+  const streak = done.size > 0 ? 4 : 3;
+
+  // 7-daagse activiteit (demo + sessie van vandaag)
+  const base = [1, 2, 0, 1, 1, 1];           // 6 t/m 1 dag geleden
+  const vals = [...base, done.size];          // vandaag erbij
+  const max = Math.max(...vals, 1);
+  const letters = ['Z', 'M', 'D', 'W', 'D', 'V', 'Z'];
+  const today = new Date();
+  const bars = vals.map((v, i) => {
+    const d = new Date(today); d.setDate(d.getDate() - (6 - i));
+    const h = Math.round((v / max) * 100);
+    const isToday = i === 6;
+    return `<div class="ic-col">
+      <div class="ic-bar ${v > 0 ? 'on' : ''}" style="height:${Math.max(h, 6)}%;"></div>
+      <div class="ic-day" style="${isToday ? 'color:#fff;font-weight:800;' : ''}">${letters[d.getDay()]}</div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="impact">
+      <div class="impact-head">
+        <div class="impact-title">Jouw impact deze week</div>
+        <div class="impact-streak">
+          <svg viewBox="0 0 24 24"><path d="M12 2c1 4-2 5-2 8a4 4 0 008 0c0-1-1-3-2-4 0 2-1 3-2 3 1-3-1-5 0-7z"/></svg>
+          <span>${streak} dagen op rij</span>
+        </div>
+      </div>
+      <div class="impact-stats">
+        <div><div class="impact-stat-n">${tasksTotal}</div><div class="impact-stat-l">taken</div></div>
+        <div><div class="impact-stat-n">${helped}</div><div class="impact-stat-l">bewoners</div></div>
+        <div><div class="impact-stat-n">${hrs} u</div><div class="impact-stat-l">bijgedragen</div></div>
+      </div>
+      <div class="impact-chart">${bars}</div>
+    </div>`;
+}
+
+// ═══════════════════════════
+// VIERING (na afgeronde taak)
+// ═══════════════════════════
+function celebrate(msg) {
+  const wrap = document.getElementById('celebrate');
+  if (!wrap) return;
+  const colors = ['#24AA5A', '#E5782A', '#FFD27A', '#1A7A45', '#6BA3C9'];
+  let conf = '';
+  for (let i = 0; i < 30; i++) {
+    const ang = Math.random() * Math.PI * 2, dist = 70 + Math.random() * 170;
+    const cx = Math.cos(ang) * dist, cy = Math.sin(ang) * dist - 30;
+    conf += `<span class="confetti" style="--cx:${cx.toFixed(0)}px;--cy:${cy.toFixed(0)}px;background:${colors[i % colors.length]};animation-delay:${(Math.random() * 0.12).toFixed(2)}s;"></span>`;
+  }
+  wrap.innerHTML = `${conf}<div class="celebrate-card"><div class="celebrate-emoji">🎉</div><strong>Goed gedaan!</strong><span>${msg}</span></div>`;
+  void wrap.offsetWidth;            // forceer reflow zodat de transitie speelt
+  wrap.classList.add('show');
+  setTimeout(() => { wrap.classList.remove('show'); setTimeout(() => { wrap.innerHTML = ''; }, 420); }, 2000);
+}
+
+// ═══════════════════════════
+// LIVE BINNENKOMENDE MELDING
+// ═══════════════════════════
+const INCOMING = [
+  { rid: 3, type: 'green',
+    desc: 'Mevrouw Bakker zit al een tijd alleen op haar kamer — een kort bezoekje zou fijn zijn.',
+    gemeten: 'Het systeem registreerde vandaag een lange periode zonder sociaal contact.',
+    taak: 'Ga even langs bij mevrouw Bakker voor een praatje. Vraag gerust naar haar kleinkinderen of de vogels in de tuin.' },
+  { rid: 5, type: 'orange',
+    desc: 'Mevrouw Peters heeft haar lunch nog niet aangeraakt.',
+    gemeten: 'Het systeem heeft geregistreerd dat de maaltijd van 12:30 nog onaangeroerd is.',
+    taak: 'Kijk rustig bij mevrouw Peters of alles goed gaat en of ze zin heeft om iets te eten. Forceer niets.' }
+];
+let incIdx = 0, incTimer = null;
+function scheduleIncoming(ms) { clearTimeout(incTimer); incTimer = setTimeout(fireIncoming, ms || 22000); }
+function fireIncoming() {
+  if (incIdx >= INCOMING.length) return;
+  const inc = INCOMING[incIdx];
+  const r = RES.find(x => x.id === inc.rid);
+  if (!r) { incIdx++; return; }
+  if (r.melding && !done.has(r.id) && !skipped.has(r.id)) { scheduleIncoming(15000); return; }
+  incIdx++;
+  const now = new Date();
+  const tijd = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+  done.delete(r.id); skipped.delete(r.id);
+  r.melding = { type: inc.type, desc: inc.desc, tijd, afstand: fmtKm(r.distKm), gemeten: inc.gemeten, taak: inc.taak };
+  renderM(); renderHome(); updateBadge();
+  refreshResMarker(r.id);
+  pulseBadge();
+  toast('🔔 Nieuwe melding — ' + r.name);
+  if (incIdx < INCOMING.length) scheduleIncoming(34000);
+}
+function pulseBadge() {
+  const b = document.getElementById('nbadge');
+  if (!b) return;
+  b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse');
+}
+
+// ═══════════════════════════
+// PWA (installeerbaar + offline)
+// ═══════════════════════════
+let deferredPrompt = null, canInstall = false, installDismissed = false;
+function initPWA() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e; canInstall = true;
+    if (!installDismissed) renderHome();
+  });
+  window.addEventListener('appinstalled', () => {
+    canInstall = false; deferredPrompt = null;
+    toast('ADL-Actief is geïnstalleerd', true);
+    renderHome();
+  });
+}
+function doInstall() {
+  if (!deferredPrompt) { toast('Gebruik het browsermenu › "Toevoegen aan beginscherm"'); return; }
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.finally(() => { deferredPrompt = null; canInstall = false; renderHome(); });
+}
+function dismissInstall() { installDismissed = true; canInstall = false; renderHome(); }
+
+let toastTimer;
+function toast(msg, grn = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (grn ? ' grn' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+// ═══════════════════════════
+// INIT (draait bij laden)
+// ═══════════════════════════
+initTheme();
+initPWA();
+</script>
+</body>
+</html>
