@@ -41,19 +41,23 @@
   --r-lg: 20px;
   --r-xl: 28px;
   --nav-h: 84px;
+  --frame: 430px;
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
 }
 
+/* Telefoon: app vult het hele scherm — geen zij-borders. Op desktop blijft het een 430px mockup. */
+@media (max-width: 500px){ :root{ --frame: 100%; } }
+
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;}
-body{font-family:var(--font);background:var(--bg);color:var(--g800);font-size:16px;line-height:1.5;max-width:430px;margin:0 auto;height:100vh;overflow:hidden;}
+body{font-family:var(--font);background:var(--bg);color:var(--g800);font-size:16px;line-height:1.5;max-width:var(--frame);margin:0 auto;height:100vh;overflow:hidden;}
 ::-webkit-scrollbar{display:none;}
 
 /* ══════════════════════════════════
    LOGIN SCREEN
 ══════════════════════════════════ */
 #login-screen {
-  position:fixed; inset:0; max-width:430px; margin:0 auto; z-index:800;
+  position:fixed; inset:0; max-width:var(--frame); margin:0 auto; z-index:800;
   background: linear-gradient(165deg, #071B0D 0%, #0D3D22 22%, #165A34 50%, #1E8048 75%, #2CA85A 100%);
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   padding:32px 24px;
@@ -106,7 +110,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--g800);font-size:16
 /* ══════════════════════════════════
    ONBOARDING
 ══════════════════════════════════ */
-#onboarding{position:fixed;inset:0;max-width:430px;margin:0 auto;z-index:500;display:none;flex-direction:column;background:var(--white);}
+#onboarding{position:fixed;inset:0;max-width:var(--frame);margin:0 auto;z-index:500;display:none;flex-direction:column;background:var(--white);}
 #onboarding.visible{display:flex;}
 .ob-step{display:none;flex-direction:column;height:100%;}
 .ob-step.active{display:flex;}
@@ -149,7 +153,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--g800);font-size:16
 /* ── Bottom nav ── */
 .bnav{
   position:fixed;bottom:0;left:50%;transform:translateX(-50%);
-  width:100%;max-width:430px;z-index:100;
+  width:100%;max-width:var(--frame);z-index:100;
   background:rgba(255,255,255,0.92);
   backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
   border-top:1px solid rgba(0,0,0,0.06);
@@ -242,7 +246,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--g800);font-size:16
 .tag svg{width:10px;height:10px;stroke:var(--green);fill:none;stroke-width:2.5;}
 
 /* ── Detail screen ── */
-.ds{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:100vh;background:var(--bg);z-index:200;overflow-y:auto;display:none;animation:slideUp .28s cubic-bezier(.32,.72,0,1);}
+.ds{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:var(--frame);height:100vh;background:var(--bg);z-index:200;overflow-y:auto;display:none;animation:slideUp .28s cubic-bezier(.32,.72,0,1);}
 .ds.open{display:block;}
 @keyframes slideUp{from{transform:translateX(-50%) translateY(28px);opacity:.5;}to{transform:translateX(-50%) translateY(0);opacity:1;}}
 .ds-head{background:rgba(255,255,255,0.92);padding:14px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--g100);position:sticky;top:0;z-index:10;backdrop-filter:blur(20px);}
@@ -380,7 +384,7 @@ body.dark .map-fab{background:var(--white);}
 .ic-day{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-size:9.5px;color:rgba(255,255,255,.65);font-weight:600;}
 
 /* ════════ CELEBRATION ════════ */
-.celebrate{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:700;pointer-events:none;display:flex;align-items:center;justify-content:center;}
+.celebrate{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:var(--frame);z-index:700;pointer-events:none;display:flex;align-items:center;justify-content:center;}
 .celebrate-card{background:var(--white);border-radius:var(--r-xl);padding:26px 32px;box-shadow:var(--shadow-lg);text-align:center;transform:scale(.7);opacity:0;transition:transform .42s cubic-bezier(.34,1.56,.64,1),opacity .3s;}
 .celebrate.show .celebrate-card{transform:scale(1);opacity:1;}
 .celebrate-emoji{font-size:46px;margin-bottom:6px;line-height:1;}
@@ -441,7 +445,7 @@ body.dark .map-fab{background:var(--white);}
 ══════════════════════════════════ */
 #av-screen{
   position:fixed;top:0;left:50%;transform:translateX(-50%);
-  width:100%;max-width:430px;height:100vh;z-index:300;
+  width:100%;max-width:var(--frame);height:100vh;z-index:300;
   background:var(--bg);display:none;flex-direction:column;
   animation:slideUp .28s cubic-bezier(.32,.72,0,1);
 }
